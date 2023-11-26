@@ -63,6 +63,7 @@ db.sqlite3-journal
 
 # Arduino environment variables
 arduino_secrets.h
+iot_configs.h
 
 # Flask stuff:
 instance/
