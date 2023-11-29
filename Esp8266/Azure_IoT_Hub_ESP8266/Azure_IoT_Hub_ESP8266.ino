@@ -328,7 +328,12 @@ static void sendTelemetry()
     return;
   }
 
-  mqtt_client.publish(telemetry_topic, getTelemetryPayload(), false);
+  //TODO: add actual sensor values
+  //Mock data
+  float temperatureValue = 25.5;
+  String jsonData = "{\"SoilMoisture\":2342,\"Temperature\": 25.5,\"AirHumidity\": 2342 ,\"LightLevel\": 999 ,\"WaterLevel\": 234}";
+
+  mqtt_client.publish(telemetry_topic, jsonData.c_str(), false);
   Serial.println("OK");
   delay(100);
   digitalWrite(LED_PIN, LOW);

@@ -6,7 +6,7 @@ using System;
 namespace ArduinoDataProcessFunction
 {
     [Table("arduinodata")]
-    class ArduinoData : BaseModel
+    class ArduinoDataDB : BaseModel
     {
         [PrimaryKey("id")]
         public int Id { get; set; }
@@ -26,7 +26,7 @@ namespace ArduinoDataProcessFunction
         [Column("waterlevel")]
         public float WaterLevel { get; set; }
 
-        [Column("lightlevel")]
+        [Column("irrigationamount")]
         public float IrrigationAmount { get; set; }
 
         [Column("timestamp")]
