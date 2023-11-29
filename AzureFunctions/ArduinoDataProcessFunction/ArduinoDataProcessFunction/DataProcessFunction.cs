@@ -62,7 +62,7 @@ namespace ArduinoDataProcessFunction
                 LightLevel = arduinoDataJson.LightLevel / ArduinoDataConstants.MAX_LIGHTLEVEL_VALUE,
                 WaterLevel = arduinoDataJson.WaterLevel / ArduinoDataConstants.MAX_WATERLEVEL_VALUE,
                 IrrigationAmount = 0,
-                TimeStamp = new DateTime(),
+                TimeStamp = DateTime.Now, //TODO: FIX not passing proper hour
                 ClientId = clientId
             };
 
