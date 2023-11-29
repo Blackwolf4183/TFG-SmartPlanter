@@ -28,6 +28,10 @@ namespace ArduinoDataProcessFunction
 
             var supabase = new Supabase.Client(url, key, options);
             await supabase.InitializeAsync();
+
+            //TODO: Add try catch to ensure everything is running ok 
+            //TODO: Create email alert when processing didn't go well
+            //TODO: create DB Model to store information
         }
     }
 }
