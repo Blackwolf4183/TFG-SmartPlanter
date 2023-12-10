@@ -17,6 +17,20 @@ void setup(){
   dht.begin();
 }
 
+int analogReadPhotoResistor(){
+  digitalWrite(POWERPHOTOSENSORPIN, HIGH); 
+  digitalWrite(POWERSOILSENSORPIN, LOW);
+  delay(500);
+  return analogRead(ANALOGPIN);
+}
+
+int analogReadSoilMoistureSensor(){
+  digitalWrite(POWERPHOTOSENSORPIN, LOW); 
+  digitalWrite(POWERSOILSENSORPIN, HIGH);
+  delay(500);
+  return analogRead(ANALOGPIN);
+}
+
 void loop()
 {
   delay(2000);
@@ -33,23 +47,16 @@ void loop()
   Serial.print("Temperature: ");
   Serial.println(temperature);
   
-  digitalWrite(POWERPHOTOSENSORPIN, HIGH);  
+  int lightLevelValue = analogReadPhotoResistor();
+  delay(200);
+  int soilMoistureSensor = analogReadSoilMoistureSensor();
+  delay(200);
 
-  int lightLevelValue = analogRead(ANALOGPIN);
   Serial.print("Light level: ");
   Serial.println(lightLevelValue);
-
-  digitalWrite(POWERPHOTOSENSORPIN, LOW);  
   
-  delay(500);
-
-  digitalWrite(POWERSOILSENSORPIN, HIGH);  
-
-  int soilMoistureSensor = analogRead(ANALOGPIN);
   Serial.print("Soil Moisture: ");
   Serial.println(soilMoistureSensor);
-  
-  digitalWrite(POWERSOILSENSORPIN, LOW);  
 
   Serial.println("---------------------------------");
 }
