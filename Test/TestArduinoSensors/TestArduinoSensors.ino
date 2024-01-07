@@ -11,22 +11,6 @@
 
 DHT dht(DHTPIN, DHTTYPE);
 
-unsigned long lastActionTime = 0;
-const unsigned long interval = 1000; // Interval between actions in milliseconds
-
-// Define states for the state machine
-enum State
-{
-  TEMP_HUMIDITY,
-  PHOTO_RESISTOR,
-  SOIL_MOISTURE,
-  POTENTIOMETER,
-  END_MEASUREMENTS,
-};
-
-State currentState = TEMP_HUMIDITY;
-
-
 void setup()
 {
   pinMode(POWERSOILSENSORPIN, OUTPUT);
@@ -51,38 +35,50 @@ void setup()
   Serial.println("---------------------------------");
   Serial.print("Button val: ");
   Serial.println(buttonVal);
+
+  //TODO: do one action or the other depending of value of buttonVal 
+  gatherData();
+
+  deepSleepESP();
 }
 
-int analogReadPhotoResistor()
+void deepSleepESP()
 {
-  digitalWrite(POWERPHOTOSENSORPIN, HIGH);
-  digitalWrite(POWERSOILSENSORPIN, LOW);
-  digitalWrite(POWERPOTENTIOMETERPIN, LOW);
-  return analogRead(ANALOGPIN);
+  digitalWrite(BUTTONPIN, LOW);
+  delay(1000);
+
+  Serial.println("Going to sleep for 10 seconds");
+  ESP.deepSleep(10e6);
+  
+  Serial.println("Esto no se debería ver");
 }
 
-int analogReadSoilMoistureSensor()
+void gatherData()
 {
-  digitalWrite(POWERPHOTOSENSORPIN, LOW);
-  digitalWrite(POWERSOILSENSORPIN, HIGH);
-  digitalWrite(POWERPOTENTIOMETERPIN, LOW);
-  return analogRead(ANALOGPIN);
-}
+  int lightLevelValue = analogReadPhotoResistor();
+  Serial.print("Light level: ");
+  Serial.println(lightLevelValue);
 
-int analogReadPotentiometer()
-{
-  digitalWrite(POWERPHOTOSENSORPIN, LOW);
-  digitalWrite(POWERSOILSENSORPIN, LOW);
-  digitalWrite(POWERPOTENTIOMETERPIN, HIGH);
-  return analogRead(ANALOGPIN);
-}
+  delay(500);
 
+  int soilMoistureSensor = analogReadSoilMoistureSensor();
 
+  Serial.print("Soil Moisture: ");
+  Serial.println(soilMoistureSensor);
 
-void checkTempHumidity()
-{
-  float humidity = dht.readHumidity();
+  delay(500);
+
+  int potentiometerValue = analogReadPotentiometer();
+
+  Serial.print("Potentiometer: ");
+  Serial.println(potentiometerValue);
+
+  delay(500);
+
+  digitalWriteLowAll();
+  //checkTempHumidity();
   float temperature = dht.readTemperature();
+  float humidity = dht.readHumidity();;
 
   if (isnan(humidity) || isnan(temperature))
   {
@@ -96,79 +92,38 @@ void checkTempHumidity()
   Serial.println(temperature);
 }
 
-void checkPhotoResistor()
-{
-  int lightLevelValue = analogReadPhotoResistor();
-
-  Serial.print("Light level: ");
-  Serial.println(lightLevelValue);
+void digitalWriteLowAll(){
+  digitalWrite(POWERPHOTOSENSORPIN, LOW);
+  digitalWrite(POWERSOILSENSORPIN, LOW);
+  digitalWrite(POWERPOTENTIOMETERPIN, LOW);
+  delay(100);
 }
 
-void checkSoilMoisture()
-{
-  int soilMoistureSensor = analogReadSoilMoistureSensor();
-
-  Serial.print("Soil Moisture: ");
-  Serial.println(soilMoistureSensor);
+int analogReadPhotoResistor() {
+  digitalWriteLowAll();
+  digitalWrite(POWERPHOTOSENSORPIN, HIGH);
+  delay(100);
+  return analogRead(ANALOGPIN);
 }
 
-void checkPotentiometer()
-{
-  int potentiometerValue = analogReadPotentiometer();
+int analogReadSoilMoistureSensor() {
+  digitalWriteLowAll();
+  digitalWrite(POWERSOILSENSORPIN, HIGH);
+  delay(100);
+  return analogRead(ANALOGPIN);
+}
 
-  Serial.print("Potentiometer: ");
-  Serial.println(potentiometerValue);
+int analogReadPotentiometer() {
+  digitalWriteLowAll();
+  digitalWrite(POWERPOTENTIOMETERPIN, HIGH);
+  delay(100);
+  return analogRead(ANALOGPIN);
 }
 
 
-void loop()
-{
-  unsigned long currentTime = millis();
-  
 
-  // Check if the interval has passed since the last action
-  if (currentTime - lastActionTime >= interval)
-  {
-    lastActionTime = currentTime;
+void loop(){
 
-    // Perform the action based on the current state
-    switch (currentState)
-    {
-      case TEMP_HUMIDITY:
-        checkTempHumidity();
-        currentState = PHOTO_RESISTOR;
-        break;
-
-      case PHOTO_RESISTOR:
-        checkPhotoResistor();
-        currentState = SOIL_MOISTURE;
-        break;
-
-      case SOIL_MOISTURE:
-        checkSoilMoisture();
-        currentState = POTENTIOMETER;
-        break;
-
-      case POTENTIOMETER:
-        checkPotentiometer();
-        currentState = END_MEASUREMENTS;
-        break;
-
-      case END_MEASUREMENTS:
-        //Send values captured to azure
-        //....
-
-        //Send arduino to deepSleep 
-        //TEST
-        digitalWrite(BUTTONPIN, LOW);
-        delay(1000);
-
-        Serial.println("Going to sleep for 10 seconds");
-        ESP.deepSleep(10e6);
-        
-        Serial.println("Esto no se debería ver");
-        currentState = TEMP_HUMIDITY;
-        break;
-    }
-  }
 }
+
+
