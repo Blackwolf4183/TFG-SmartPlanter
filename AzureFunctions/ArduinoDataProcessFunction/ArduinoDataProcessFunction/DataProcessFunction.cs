@@ -51,18 +51,23 @@ namespace ArduinoDataProcessFunction
             log.LogInformation($"Temperature: {arduinoDataJson.Temperature}");
             log.LogInformation($"AirHumidity: {arduinoDataJson.AirHumidity}");
             log.LogInformation($"LightLevel: {arduinoDataJson.LightLevel}");
-            log.LogInformation($"WaterLevel: {arduinoDataJson.WaterLevel}");
+            log.LogInformation($"IrrigationTime: {arduinoDataJson.IrrigationTime}");
+
+            //Get local time 
+            TimeZoneInfo centralEuropeTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Romance Standard Time");
+            // Convert the current time to the specified time zone
+            DateTime centralEuropeTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, centralEuropeTimeZone);
+
 
             //Store values in DB
             ArduinoDataDB arduinoDataDBModel = new ArduinoDataDB
             {
-                SoilMoisture = arduinoDataJson.SoilMoisture/ ArduinoDataConstants.MAX_SOILTEMPERATURE_VALUE,
+                SoilMoisture = arduinoDataJson.SoilMoisture,
                 Temperature = arduinoDataJson.Temperature ,
-                AirHumidity = arduinoDataJson.AirHumidity / ArduinoDataConstants.MAX_AIRHUMIDITY_VALUE,
-                LightLevel = arduinoDataJson.LightLevel / ArduinoDataConstants.MAX_LIGHTLEVEL_VALUE,
-                WaterLevel = arduinoDataJson.WaterLevel / ArduinoDataConstants.MAX_WATERLEVEL_VALUE,
-                IrrigationAmount = 0,
-                TimeStamp = DateTime.Now, //TODO: FIX not passing proper hour
+                AirHumidity = arduinoDataJson.AirHumidity ,
+                LightLevel = arduinoDataJson.LightLevel,
+                IrrigationAmount = arduinoDataJson.IrrigationTime, //TODO: calculate aproximate amount of water in time
+                //TimeStamp = centralEuropeTime, //TODO: FIX not passing proper hour
                 ClientId = clientId
             };
 

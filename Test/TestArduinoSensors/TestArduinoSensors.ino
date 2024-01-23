@@ -7,6 +7,7 @@
 #define POWERPHOTOSENSORPIN 5
 #define POWERPOTENTIOMETERPIN 12
 #define BUTTONPIN 14
+#define RELAYPIN 0
 #define ANALOGPIN A0
 
 DHT dht(DHTPIN, DHTTYPE);
@@ -16,8 +17,12 @@ void setup()
   pinMode(POWERSOILSENSORPIN, OUTPUT);
   pinMode(POWERPHOTOSENSORPIN, OUTPUT);
   pinMode(POWERPOTENTIOMETERPIN, OUTPUT);
+  pinMode(RELAYPIN, OUTPUT);
 
   pinMode(BUTTONPIN, INPUT);
+
+  //Set relay on low so it doesn't activate the water pump
+  digitalWrite(RELAYPIN, LOW);
 
   int buttonVal = digitalRead(BUTTONPIN);
 
@@ -37,8 +42,18 @@ void setup()
   Serial.println(buttonVal);
 
   //TODO: do one action or the other depending of value of buttonVal 
-  gatherData();
 
+  if(buttonVal == 1)
+  {
+    Serial.println("Starting plant watering ");
+    //Button manually pushed
+    digitalWrite(RELAYPIN, HIGH);
+    delay(3000); //TODO: change dinamically according to potentiometer value
+    digitalWrite(RELAYPIN, LOW);
+  }
+ 
+  
+  gatherData();
   deepSleepESP();
 }
 

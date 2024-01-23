@@ -7,5 +7,6 @@
         public float AirHumidity { get; set; }
         public float LightLevel { get; set; }
         public float WaterLevel { get; set; }
+        public float IrrigationTime { get; set; }
     }
 }

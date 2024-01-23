@@ -5,10 +5,6 @@
     /// </summary>
     public static class ArduinoDataConstants
     {
-        public const float MAX_SOILMOISTURE_VALUE = 9999;
-        public const float MAX_SOILTEMPERATURE_VALUE = 9999;
-        public const float MAX_AIRHUMIDITY_VALUE = 99999;
-        public const float MAX_LIGHTLEVEL_VALUE = 9999;
-        public const float MAX_WATERLEVEL_VALUE = 9999;
+        public const float MAX_WATERLEVEL_VALUE = 6000;
     }
 }
