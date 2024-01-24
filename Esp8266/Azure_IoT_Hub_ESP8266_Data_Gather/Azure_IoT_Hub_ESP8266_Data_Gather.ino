@@ -354,6 +354,25 @@ static void sendTelemetry(int wateringMilliseconds, int lightLevelValue, int soi
   delay(100);
 }
 
+static void sendError(String errorMessage)
+{
+  Serial.print(millis());
+  Serial.print(" ESP8266 Sending error . . . ");
+  
+  if (az_result_failed(az_iot_hub_client_telemetry_get_publish_topic(&client, NULL, telemetry_topic, sizeof(telemetry_topic), NULL)))
+  {
+    Serial.println("Failed publishing into topic");
+    return;
+  }
+
+  // Use the function arguments in the JSON data
+  String jsonData = String("{\"ErrorMessage\":\"") + errorMessage + "\"}";
+
+  mqtt_client.publish(telemetry_topic, jsonData.c_str(), false);
+  Serial.println("OK");
+  delay(100);
+}
+
 
 // Arduino setup and loop main functions.
 DHT dht(DHTPIN, DHTTYPE);
@@ -393,14 +412,14 @@ void setup()
   // MQTT loop must be called to process Device-to-Cloud and Cloud-to-Device.
   mqtt_client.loop();
   
-  Serial.print("Button val: ");
+  Serial.print("Button value: ");
   Serial.println(buttonVal);
 
   //Get data from sensors and send it to azure
   int wateringMilliSeconds = gatherData();
 
-  //If button was pressed, then water the plant
-  if(buttonVal == 1)
+  //If button was pressed, then water the plant (also check there was no error on gatherData())
+  if(buttonVal == 1 && wateringMilliSeconds != -1)
   {
     Serial.print("Watering the plant for: ");
     Serial.print(wateringMilliSeconds);
@@ -425,6 +444,7 @@ void deepSleepESP()
   Serial.println("Esto no se debería ver");
 }
 
+//Returns number of milliseconds for the relay to be active. If there was an error with the sensors, returns -1.
 int gatherData()
 {
   int lightLevelValue = analogReadPhotoResistor();
@@ -440,16 +460,15 @@ int gatherData()
   delay(500);
 
   digitalWriteLowAll();
-  //checkTempHumidity();
+
   float temperature = dht.readTemperature();
-  float humidity = dht.readHumidity();;
+  float humidity = dht.readHumidity();
 
   if (isnan(humidity) || isnan(temperature))
   {
     Serial.println("Error de sensor");
-
-    //TODO: Send error message to Azure IOT
-    //sendErrorMessage();
+    sendError("DHT measurement error.");
+    return -1;
   }
 
 

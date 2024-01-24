@@ -6,7 +6,13 @@ CREATE TABLE ArduinoData (
   LightLevel FLOAT CHECK (LightLevel >= 0.0 AND LightLevel <= 100.0),
   WaterLevel  FLOAT CHECK (WaterLevel >= 0.0 ),
   IrrigationAmount  FLOAT CHECK (IrrigationAmount >= 0.0 ),
-  TimeStamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  TimeStamp timestamp,
   ClientID VARCHAR(50)
 )
 
+CREATE TABLE ErrorLog (
+  id SERIAL PRIMARY KEY,
+  ErrorMessage VARCHAR(255),
+  ErrorTime TIMESTAMP,
+  Source VARCHAR(255)
+)

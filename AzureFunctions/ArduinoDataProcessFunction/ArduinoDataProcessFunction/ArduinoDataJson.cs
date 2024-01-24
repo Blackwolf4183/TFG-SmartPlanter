@@ -8,5 +8,6 @@
         public float LightLevel { get; set; }
         public float WaterLevel { get; set; }
         public float IrrigationTime { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }

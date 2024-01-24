@@ -25,9 +25,11 @@ namespace ArduinoDataProcessFunction
             //Extract client id
             var clientId = message.SystemProperties["iothub-connection-device-id"].ToString();
 
+            //Get string from topic
             String receivedString = Encoding.UTF8.GetString(message.Body.Array);
-            log.LogInformation($"Data Process Function processed a message: {receivedString}");
+            log.LogInformation($"Data Process Function received a message: {receivedString}");
 
+            #region Supabase configuration
             var url = Environment.GetEnvironmentVariable("SUPABASE_URL");
             var key = Environment.GetEnvironmentVariable("SUPABASE_KEY");
 
@@ -38,20 +40,13 @@ namespace ArduinoDataProcessFunction
 
             var supabase = new Supabase.Client(url, key, options);
             await supabase.InitializeAsync();
-
-            //TODO: Add try catch to ensure everything is running ok 
-            //TODO: Create email alert when processing didn't go well
+            #endregion Supabase configuration
 
             //Trim the received message to avoid errors in Json conversion
             string trimmedReceivedString = receivedString.Trim();
 
             //Deserialize the json string gotten from the event
             ArduinoDataJson arduinoDataJson = JsonConvert.DeserializeObject<ArduinoDataJson>(trimmedReceivedString);
-            log.LogInformation($"SoilMoisture: {arduinoDataJson.SoilMoisture}");
-            log.LogInformation($"Temperature: {arduinoDataJson.Temperature}");
-            log.LogInformation($"AirHumidity: {arduinoDataJson.AirHumidity}");
-            log.LogInformation($"LightLevel: {arduinoDataJson.LightLevel}");
-            log.LogInformation($"IrrigationTime: {arduinoDataJson.IrrigationTime}");
 
             //Get local time 
             TimeZoneInfo centralEuropeTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Romance Standard Time");
@@ -59,19 +54,39 @@ namespace ArduinoDataProcessFunction
             DateTime centralEuropeTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, centralEuropeTimeZone);
 
 
-            //Store values in DB
-            ArduinoDataDB arduinoDataDBModel = new ArduinoDataDB
+            //No error from ESP32
+            if(arduinoDataJson.ErrorMessage == null)
             {
-                SoilMoisture = arduinoDataJson.SoilMoisture,
-                Temperature = arduinoDataJson.Temperature ,
-                AirHumidity = arduinoDataJson.AirHumidity ,
-                LightLevel = arduinoDataJson.LightLevel,
-                IrrigationAmount = arduinoDataJson.IrrigationTime, //TODO: calculate aproximate amount of water in time
-                //TimeStamp = centralEuropeTime, //TODO: FIX not passing proper hour
-                ClientId = clientId
-            };
+                //TODO: Validate values 
 
-            await supabase.From<ArduinoDataDB>().Insert(arduinoDataDBModel);
+                //Store values in DB
+                var arduinoDataDBModel = new ArduinoDataDB
+                {
+                    SoilMoisture = arduinoDataJson.SoilMoisture,
+                    Temperature = arduinoDataJson.Temperature,
+                    AirHumidity = arduinoDataJson.AirHumidity,
+                    LightLevel = arduinoDataJson.LightLevel,
+                    IrrigationAmount = arduinoDataJson.IrrigationTime, //TODO: calculate aproximate amount of water in time
+                    TimeStamp = centralEuropeTime,
+                    ClientId = clientId
+                };
+
+                await supabase.From<ArduinoDataDB>().Insert(arduinoDataDBModel);
+            }
+            else
+            {
+                //Store error in DB
+                var errorLogDBModel = new ErrorLogDB
+                {
+                    ErrorMessage = arduinoDataJson.ErrorMessage,
+                    ErrorTime = centralEuropeTime,
+                    Source = clientId
+                };
+
+                await supabase.From<ErrorLogDB>().Insert(errorLogDBModel);
+            }
         }
+         
+        
     }
 }
