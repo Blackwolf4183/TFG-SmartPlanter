@@ -377,8 +377,16 @@ static void sendError(String errorMessage)
 // Arduino setup and loop main functions.
 DHT dht(DHTPIN, DHTTYPE);
 
+int wateringMilliseconds;
+int lightLevelPercent;
+int soilMoisturePercent;
+float temperature;
+float humidity;
+
 void setup()
 {
+  digitalWrite(RELAYPIN, LOW); //FIX: prevent flickering of relay on power up
+
   pinMode(POWERSOILSENSORPIN, OUTPUT);
   pinMode(POWERPHOTOSENSORPIN, OUTPUT);
   pinMode(POWERPOTENTIOMETERPIN, OUTPUT);
@@ -416,18 +424,24 @@ void setup()
   Serial.println(buttonVal);
 
   //Get data from sensors and send it to azure
-  int wateringMilliSeconds = gatherData();
+  gatherData();
 
   //If button was pressed, then water the plant (also check there was no error on gatherData())
-  if(buttonVal == 1 && wateringMilliSeconds != -1)
+  if(buttonVal == 1)
   {
     Serial.print("Watering the plant for: ");
-    Serial.print(wateringMilliSeconds);
+    Serial.print(wateringMilliseconds);
     Serial.println(" milliseconds.");
     //Button manually pushed
     digitalWrite(RELAYPIN, HIGH);
-    delay(wateringMilliSeconds); 
+    delay(wateringMilliseconds); 
     digitalWrite(RELAYPIN, LOW);
+
+    sendTelemetry(wateringMilliseconds, lightLevelPercent, soilMoisturePercent, temperature, humidity);
+  }
+  else
+  {
+    sendTelemetry(0, lightLevelPercent, soilMoisturePercent, temperature, humidity);
   }
   
   deepSleepESP();
@@ -445,7 +459,7 @@ void deepSleepESP()
 }
 
 //Returns number of milliseconds for the relay to be active. If there was an error with the sensors, returns -1.
-int gatherData()
+void gatherData()
 {
   int lightLevelValue = analogReadPhotoResistor();
 
@@ -461,22 +475,19 @@ int gatherData()
 
   digitalWriteLowAll();
 
-  float temperature = dht.readTemperature();
-  float humidity = dht.readHumidity();
+  temperature = dht.readTemperature();
+  humidity = dht.readHumidity();
 
   if (isnan(humidity) || isnan(temperature))
   {
     Serial.println("Error de sensor");
     sendError("DHT measurement error.");
-    return -1;
+    return;
   }
 
-
-  int wateringMilliseconds = (int) ((float) ((float) potentiometerValue / (float) MAX_ANALOG) * MAX_WATERING_TIME);
-  int soilMoisturePercent = map(soilMoistureValue, AIR_VALUE, WATER_VALUE, 0, 100);
-  int lightLevelPercent = map(lightLevelValue, 0, 1023, 0, 100);
-
-  sendTelemetry(wateringMilliseconds, lightLevelPercent, soilMoisturePercent, temperature, humidity);
+  wateringMilliseconds = (int) ((float) ((float) potentiometerValue / (float) MAX_ANALOG) * MAX_WATERING_TIME);
+  soilMoisturePercent = map(soilMoistureValue, AIR_VALUE, WATER_VALUE, 0, 100);
+  lightLevelPercent = map(lightLevelValue, 0, 1023, 0, 100);
 
   //Logs
   Serial.print("Humidity: ");
@@ -490,8 +501,6 @@ int gatherData()
   Serial.print("Light level: ");
   Serial.println(lightLevelPercent);
 
-  //return number of seconds to water the plant depending on potentiometer value
-  return wateringMilliseconds;
 }
 
 void digitalWriteLowAll(){
