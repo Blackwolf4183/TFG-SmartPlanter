@@ -24,21 +24,22 @@ CREATE TABLE ErrorLog (
   Source VARCHAR(255)
 );
 
-CREATE TABLE User (
+CREATE TABLE "user" (
   id SERIAL PRIMARY KEY,
   Username VARCHAR(30),
-  Password VARCHAR(255)
+  Password VARCHAR(255),
+  Email VARCHAR(150)
 );
 
 CREATE TABLE UserPlant (
   id SERIAL PRIMARY KEY,
-  UserID INT REFERENCES User(id),
-  PlantReference -- TODO: figure how to connect this to the plants api 
+  UserID INT REFERENCES "user"(id),
+  PlantReference VARCHAR(50)-- TODO: figure how to connect this to the plants api 
 )
 
 CREATE TABLE UserDevice (
   id SERIAL PRIMARY KEY,
-  UserID INT REFERENCES User(id), -- References the id from User table
+  UserID INT REFERENCES "user"(id), -- References the id from User table
   DeviceID INT REFERENCES Device(id) -- References the id from Device table
 );
 
