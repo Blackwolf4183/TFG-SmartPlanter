@@ -1,18 +1,16 @@
 from datetime import datetime, timedelta
 from typing import Annotated
-from ..database import Session
+from ..database import create_supabase_client
 
-from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 import os
 
-#Models
-from ..Models.user import User as UserModel
-
-
+#Initialize supabase client
+supabase = create_supabase_client()
 
 class Token(BaseModel):
     access_token: str
@@ -48,20 +46,20 @@ def get_password_hash(password):
 
 #Gets UserInDb (only hashed password)
 def get_user(username: str):
-    db = Session()
-    db_user = db.query(UserModel).filter(UserModel.username == username).first()
 
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    else:
+    user = supabase.from_("user").select("*").eq("username", username).execute()
+
+    if user and user.data:
+        inserted_user_data = user.data[0]
         user_in_db = UserInDB(
-            id=db_user.id,
-            username=db_user.username,
-            disabled=db_user.disabled,
-            reserved_space=db_user.reserved_space,
-            hashed_password=db_user.hashed_password
+            id=inserted_user_data["id"],
+            username=inserted_user_data["username"],
+            email=inserted_user_data["email"],
+            hashed_password=inserted_user_data["password"]
         )
         return user_in_db
+    else:
+        raise HTTPException(status_code=404, detail="User not found")
 
 
 
@@ -107,16 +105,36 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise credentials_exception
     return user
 
+def user_exists(key: str = "email", value: str = None):
+    user = supabase.from_("user").select("*").eq(key, value).execute()
+    return len(user.data) > 0
 
-async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)]
-):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
+#Creates user in DB
+async def create_user(username: str, email: EmailStr, password: str):
 
+    if user_exists(value=email):
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    if user_exists(key="username", value=username):
+        raise HTTPException(status_code=400, detail="Username already registered")
 
+    # Hash the password before storing it
+    hashed_password = get_password_hash(password)
 
+    # Add the new user to the database session
+    user = supabase.from_("user")\
+            .insert({"username": username, "email": email, "password": hashed_password})\
+            .execute()
+
+    #User object sent as response
+    if user and user.data:  # Check if user data exists
+        inserted_user_data = user.data[0]  # Access the first item in the list
+        response_user = User(id=inserted_user_data["id"], username=inserted_user_data["username"], email=inserted_user_data["email"])
+        return {"message": "User created successfully", "user": response_user}
+    else:
+        raise HTTPException(status_code=500, detail="User could not be created")
+
+ 
 
 
 

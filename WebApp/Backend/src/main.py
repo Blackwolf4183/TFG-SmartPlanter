@@ -1,5 +1,6 @@
 #uvicorn src.main:app --reload
 #http://localhost:8000/docs#/default
+# cd desktop/TFG-SmartPlanter/WebApp/Backend  
 
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.responses import JSONResponse, FileResponse
