@@ -5,7 +5,7 @@ from fastapi.security import  OAuth2PasswordRequestForm
 
 import os
 
-from ..Controllers.securityController import Token,User, authenticate_user,create_access_token, create_user
+from ..Controllers.securityController import Token, authenticate_user, create_access_token, create_user
 from datetime import  timedelta
 from typing import Annotated
 from pydantic import EmailStr
@@ -42,6 +42,7 @@ async def register_user(
 ):
     created_user = await create_user(username, email, password)
     return created_user
+
 
 
 

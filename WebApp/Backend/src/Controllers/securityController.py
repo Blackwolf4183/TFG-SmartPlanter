@@ -21,6 +21,7 @@ class TokenData(BaseModel):
     username: str | None = None
 
 
+
 class User(BaseModel):
     id: int
     username: str
@@ -134,7 +135,7 @@ async def create_user(username: str, email: EmailStr, password: str):
     else:
         raise HTTPException(status_code=500, detail="User could not be created")
 
- 
+
 
 
 

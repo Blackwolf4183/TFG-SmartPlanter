@@ -2,16 +2,14 @@
 #http://localhost:8000/docs#/default
 # cd desktop/TFG-SmartPlanter/WebApp/Backend  
 
-from fastapi import FastAPI, HTTPException, File, UploadFile
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import os
 from dotenv import load_dotenv
 
 from typing import Annotated
 
 #routes
-from .Routes import securityRoutes
+from .Routes import securityRoutes, errorRoutes, deviceRoutes
 
 
 load_dotenv()
@@ -34,3 +32,5 @@ app.add_middleware(
 
 
 app.include_router(securityRoutes.router, prefix="/auth", tags=["auth"])
+app.include_router(errorRoutes.router, prefix="/errors", tags=["errors"])
+app.include_router(deviceRoutes.router, prefix="/devices", tags=["devices"])
