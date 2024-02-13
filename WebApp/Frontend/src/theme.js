@@ -14,11 +14,11 @@ const styles = {
   }
 
 const colors = {
-    fontColor:"white",
-    customPurple: "#555DA7",
-    customCyan:"#00A0B6",
-    customPink:"#E06A9F",
-    customBlue:"#376AB2",
+    fontColor:"#57685F",
+    lightGreenBg: "#E8F1EE",
+    card:"#FEFEFE",
+    darkBg:"#183136",
+    loginBg:"#A4C4B5",
 
 };
 
