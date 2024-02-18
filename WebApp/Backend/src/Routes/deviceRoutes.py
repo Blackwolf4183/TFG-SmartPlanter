@@ -15,7 +15,7 @@ router = APIRouter()
 #TODO: add another layer of protection to add devices
 #Route to register device into db
 @router.post("/register")
-async def register_user(
+async def register_device(
     clientId: str = Form(...),
     password: str = Form(...)
 ):

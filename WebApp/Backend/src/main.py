@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from typing import Annotated
 
 #routes
-from .Routes import securityRoutes, errorRoutes, deviceRoutes
+from .Routes import securityRoutes, errorRoutes, deviceRoutes, plantRoutes
 
 
 load_dotenv()
@@ -34,3 +34,4 @@ app.add_middleware(
 app.include_router(securityRoutes.router, prefix="/auth", tags=["auth"])
 app.include_router(errorRoutes.router, prefix="/errors", tags=["errors"])
 app.include_router(deviceRoutes.router, prefix="/devices", tags=["devices"])
+app.include_router(deviceRoutes.router, prefix="/plants", tags=["plants"])
