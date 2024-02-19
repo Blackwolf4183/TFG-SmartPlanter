@@ -1,5 +1,7 @@
 import React from 'react';
-import { GridItem, HStack, Spacer, VStack, Box, Text } from '@chakra-ui/react';
+import { GridItem, HStack, Spacer, VStack, Box, Text, Center } from '@chakra-ui/react';
+import { RiPlantFill } from "react-icons/ri";
+import { FaThermometerHalf,FaRegSun  } from "react-icons/fa";
 
 const LatestReadingsBento = ({ colSpan, rowSpan }) => {
   return (
@@ -47,18 +49,23 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
             bgColor={"darkBg"}
             justify={"center"}
             spacing="0"
+            pt="3"
           >
-            <HStack w="100%" justify={"center"}>
+            <HStack w="100%" justify={"center"} spacing="1">
                 <Box w="9px" h="9px" bgColor={"rgba(254,254,254,0.44)"}borderRadius={"100%"}/>
                 <Box w="16px" h="16px" bgColor={"rgba(254,254,254,0.44)"}borderRadius={"100%"}/>
-                <Box w="35px" h="35px" bgColor={"card"}borderRadius={"100%"}></Box>
+                <Box w="35px" h="35px" bgColor={"card"} borderRadius={"100%"}>
+                  <Center mt="2.5">
+                    <RiPlantFill style={{color:"#21A366"}}/>
+                  </Center>
+                </Box>
                 <Box w="16px" h="16px" bgColor={"rgba(254,254,254,0.44)"}borderRadius={"100%"}/>
                 <Box w="9px" h="9px" bgColor={"rgba(254,254,254,0.44)"}borderRadius={"100%"}/>
             </HStack>
             
             {/* TODO: hacer dinamico */}
-            <Text color="white" fontWeight={"light"}>72%</Text>
-            <Text color="rgba(255,255,255,0.73)" fontWeight={"light"}>Humedad</Text>
+            <Text color="white" fontWeight={"light"} fontSize={"12px"} mt="2">72%</Text>
+            <Text color="rgba(255,255,255,0.73)" fontWeight={"light"} fontSize={"12px"} mt="-1">Humedad</Text>
 
           </VStack>
 
@@ -68,7 +75,22 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
             borderWidth={'2px'}
             borderRadius={10}
             borderColor={'rgba(219,219,219,0.56)'}
-          ></VStack>
+            pt="3"
+            justify={"center"}
+            spacing="0"
+          >
+            <HStack w="100%" justify={"center"} spacing="1">
+            <Box w="35px" h="35px" bgColor={"card"} borderRadius={"100%"}>
+                  <Center mt="2.5">
+                  <FaThermometerHalf style={{color:"black"}}/>
+                  </Center>
+                </Box>
+            </HStack>
+            
+            {/* TODO: hacer dinamico */}
+            <Text  fontWeight={"light"} fontSize={"12px"} mt="2">25º</Text>
+            <Text color="rgba(0,0,0,0.73)" fontWeight={"light"} fontSize={"12px"} mt="-1">Temperatura</Text>
+          </VStack>
           
           <VStack
             w="130px"
@@ -76,7 +98,26 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
             borderWidth={'2px'}
             borderRadius={10}
             borderColor={'rgba(219,219,219,0.56)'}
-          ></VStack>
+            pt="3"
+            justify={"center"}
+            spacing="0"
+          >
+            <HStack w="100%" justify={"center"} spacing="1">
+                <Box w="9px" h="9px" bgColor={"rgba(251,190,34,0.17)"}borderRadius={"100%"}/>
+                <Box w="16px" h="16px" bgColor={"rgba(251,190,34,0.17)"}borderRadius={"100%"}/>
+                <Box w="35px" h="35px" bgColor={"rgba(251,190,34,0.17)"} borderRadius={"100%"}>
+                  <Center mt="2.5">
+                    <FaRegSun style={{color:"#FBBE22"}}/>
+                  </Center>
+                </Box>
+                <Box w="16px" h="16px" bgColor={"rgba(251,190,34,0.17)"}borderRadius={"100%"}/>
+                <Box w="9px" h="9px" bgColor={"rgba(251,190,34,0.17)"}borderRadius={"100%"}/>
+            </HStack>
+            
+            {/* TODO: hacer dinamico */}
+            <Text  fontWeight={"light"} fontSize={"12px"} mt="2">72%</Text>
+            <Text  fontWeight={"light"} fontSize={"12px"} mt="-1">Intensidad de luz</Text>
+          </VStack>
         </HStack>
       </VStack>
     </GridItem>
