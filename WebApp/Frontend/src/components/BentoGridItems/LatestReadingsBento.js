@@ -64,7 +64,7 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
             </HStack>
             
             {/* TODO: hacer dinamico */}
-            <Text color="white" fontWeight={"light"} fontSize={"12px"} mt="2">72%</Text>
+            <Text color="white" fontWeight={"reegular"} fontSize={"12px"} mt="2">72%</Text>
             <Text color="rgba(255,255,255,0.73)" fontWeight={"light"} fontSize={"12px"} mt="-1">Humedad</Text>
 
           </VStack>
@@ -88,7 +88,7 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
             </HStack>
             
             {/* TODO: hacer dinamico */}
-            <Text  fontWeight={"light"} fontSize={"12px"} mt="2">25º</Text>
+            <Text  fontWeight={"regular"} fontSize={"12px"} mt="2">25º</Text>
             <Text color="rgba(0,0,0,0.73)" fontWeight={"light"} fontSize={"12px"} mt="-1">Temperatura</Text>
           </VStack>
           
@@ -115,7 +115,7 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
             </HStack>
             
             {/* TODO: hacer dinamico */}
-            <Text  fontWeight={"light"} fontSize={"12px"} mt="2">72%</Text>
+            <Text  fontWeight={"regular"} fontSize={"12px"} mt="2">72%</Text>
             <Text  fontWeight={"light"} fontSize={"12px"} mt="-1">Intensidad de luz</Text>
           </VStack>
         </HStack>

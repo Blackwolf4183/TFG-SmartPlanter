@@ -15,6 +15,8 @@ import { HiLogout } from "react-icons/hi";
 import { BiBell } from 'react-icons/bi';
 import LatestReadingsBento from '../components/BentoGridItems/LatestReadingsBento';
 import AverageIntake from '../components/BentoGridItems/AverageIntake';
+import WateringBento from '../components/BentoGridItems/WateringBento';
+import ErrorBento from '../components/BentoGridItems/ErrorBento';
 
 const Main = () => {
   return (
@@ -79,14 +81,10 @@ const Main = () => {
           <LatestReadingsBento colSpan={5} rowSpan={1}/>
           <AverageIntake colSpan={2} rowSpan={1}/>
           
-
           {/* SECOND ROW */}
-          <GridItem colSpan={3} rowSpan={1}  bg="card" h="240px" borderRadius={"10"}>
+          <WateringBento colSpan={3} rowSpan={1}/>
+          <ErrorBento colSpan={4} rowSpan={1}/>
 
-          </GridItem>
-          <GridItem colSpan={4} rowSpan={1}  bg="card" h="240px" borderRadius={"10"}>
-
-          </GridItem>
 
           {/* THIRD ROW */}
           <GridItem colSpan={7} rowSpan={1}  bg="card" h="240px" borderRadius={"10"}>

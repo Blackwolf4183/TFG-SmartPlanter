@@ -19,6 +19,7 @@ const colors = {
     card:"#FEFEFE",
     darkBg:"#183136",
     loginBg:"#A4C4B5",
+    error: "#DA7676",
 
 };
 
