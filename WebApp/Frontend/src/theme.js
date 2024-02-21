@@ -20,13 +20,14 @@ const colors = {
     darkBg:"#183136",
     loginBg:"#A4C4B5",
     error: "#DA7676",
+    advice: "#78DA76"
 
 };
 
-/* const fonts = {
-  heading:'M PLUS Rounded 1c',
-  body:'M PLUS Rounded 1c'
-}; */
+const fonts = {
+  heading:'Fredoka',
+  body:'Fredoka'
+};
 
 const customTheme = extendTheme({ styles,config,colors });
 

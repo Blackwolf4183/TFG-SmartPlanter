@@ -1,71 +1,25 @@
 import {
-  HStack,
   VStack,
-  Heading,
-  Text,
-  Spacer,
-  Button,
   Center,
   Grid,
   GridItem,
 } from '@chakra-ui/react';
-import { IoIosCalendar } from 'react-icons/io';
-import { FiCalendar } from "react-icons/fi";
-import { HiLogout } from "react-icons/hi";
-import { BiBell } from 'react-icons/bi';
+
 import LatestReadingsBento from '../components/BentoGridItems/LatestReadingsBento';
-import AverageIntake from '../components/BentoGridItems/AverageIntake';
+import AverageIntake from '../components/BentoGridItems/AverageIntakeBento';
 import WateringBento from '../components/BentoGridItems/WateringBento';
 import ErrorBento from '../components/BentoGridItems/ErrorBento';
+import Header from '../components/Header';
+import GraphicBento from '../components/BentoGridItems/GraphicBento';
+import AdviceBento from '../components/BentoGridItems/AdviceBento';
+import ExploreYourPlantBento from '../components/BentoGridItems/ExploreYourPlantBento';
 
 const Main = () => {
   return (
     <Center>
-      {/* Heading with message, date and buttons */}
       <VStack w="100%" color="fontColor" mt="10">
-        <HStack w="100%" maxW={'750px'}>
-          <HStack mt="5">
-            <VStack align="left" spacing="1">
-              <Heading fontSize={'2xl'}> ¡Bienvenido de vuelta!</Heading>
-              <HStack ml="1">
-                <FiCalendar style={{ width: '20px', height: '20px' }} />
-                {/* TODO: make dynamic */}
-                <Text fontWeight={'light'}>Lunes 3 Enero 2024</Text>
-              </HStack>
-            </VStack>
-          </HStack>
-
-          <Spacer />
-
-          <HStack>
-            {/* Notifications button */}
-            <Button
-              w="40px"
-              h="40px"
-              p="0"
-              bgColor={'white'}
-              colorScheme="gray"
-            >
-              <BiBell
-                style={{ width: '20px', height: '20px', color: 'black' }}
-              />
-            </Button>
-
-            {/* Logout button */}
-            <Button
-              w="40px"
-              h="40px"
-              p="0"
-              bgColor={'white'}
-              colorScheme="gray"
-            >
-              <HiLogout
-                style={{ width: '20px', height: '20px', color: 'black' }}
-              />
-            </Button>
-
-          </HStack>
-        </HStack>
+      {/* Heading with message, date and buttons */}
+        <Header/>
 
         {/* Bento grid */}
         <Grid
@@ -87,17 +41,10 @@ const Main = () => {
 
 
           {/* THIRD ROW */}
-          <GridItem colSpan={7} rowSpan={1}  bg="card" h="240px" borderRadius={"10"}>
-
-          </GridItem>
-
+          <GraphicBento colSpan={7} rowSpan={1}/>
           {/* FOURTH ROW */}
-          <GridItem colSpan={4} rowSpan={1}  bg="card" h="240px" borderRadius={"10"}>
-
-          </GridItem>
-          <GridItem colSpan={3} rowSpan={1}  bg="card" h="240px" borderRadius={"10"}>
-
-          </GridItem>
+          <AdviceBento colSpan={4} rowSpan={1}/>
+          <ExploreYourPlantBento colSpan={3} rowSpan={1}/>
 
         </Grid>
       </VStack>

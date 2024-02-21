@@ -1,8 +1,7 @@
 import React from 'react'
-import { Box, GridItem,HStack,Text, VStack } from '@chakra-ui/react'
+import { GridItem, Text } from '@chakra-ui/react'
 
-
-const GraphicBento = ({colSpan, rowSpan}) => {
+const ExploreYourPlantBento = ({colSpan, rowSpan}) => {
   return (
     <GridItem
       colSpan={colSpan}
@@ -12,9 +11,11 @@ const GraphicBento = ({colSpan, rowSpan}) => {
       borderRadius={'10'}
       p="30px"
     >
+        <Text>Conoce tu planta</Text>
 
+        
     </GridItem>
   )
 }
 
-export default GraphicBento
+export default ExploreYourPlantBento

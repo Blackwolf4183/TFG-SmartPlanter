@@ -1,19 +1,17 @@
 import {
   Center,
-  VStack,
   InputGroup,
   Input,
   Button,
   InputRightElement,
-  Box,
   FormControl,
   FormErrorMessage,
   Text,
+  HStack
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { Field, Form, Formik } from 'formik';
 import axios, { AxiosError } from 'axios';
-import { FaUser } from 'react-icons/fa';
 import { useSignIn } from 'react-auth-kit';
 import qs from 'qs';
 import { useNavigate } from "react-router-dom";
@@ -28,18 +26,8 @@ const Login = () => {
   const navigate = useNavigate();
   return (
     <Center h="100vh">
-      <VStack width={'300px'} bgColor={'white'} borderRadius={'15px'} p={10}>
-        <Box
-          w="80px"
-          h="80px"
-          bgColor={'customPink'}
-          borderRadius={'100%'}
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <FaUser style={{ color: 'white', width: '30px', height: '30px' }} />
-        </Box>
+      <HStack width={'300px'} bgColor={'white'}  p={10}>
+        
 
         <Formik
           initialValues={{ username: '', password: '' }}
@@ -137,17 +125,16 @@ const Login = () => {
 
               <Button
                 mt="5"
-                bgColor="customPink"
-                color="white"
+                colorScheme='gray'
                 type="submit"
                 isLoading={props.isSubmitting}
               >
-                Login
+                Entrar
               </Button>
             </Form>
           )}
         </Formik>
-      </VStack>
+      </HStack>
     </Center>
   );
 };
