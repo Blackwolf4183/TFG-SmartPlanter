@@ -59,7 +59,7 @@ const Header = () => {
 
   const logout = () => {
     signOut();
-    navigate('/login');
+    navigate('/auth');
   };
   return (
     <HStack w="100%" maxW={'750px'}>

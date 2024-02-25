@@ -8,6 +8,7 @@ import {
   HStack,
   VStack,
   Image,
+  Box,
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { Field, Form, Formik } from 'formik';
@@ -17,6 +18,12 @@ import qs from 'qs';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const [isLoginPage, setIsLoginPage] = useState(true);
+
+  const handleRegisterClick = () => {
+    setIsLoginPage(!isLoginPage);
+  };
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const signIn = useSignIn();
@@ -52,57 +59,118 @@ const Login = () => {
             SmartPlanter
           </Text>
           <Text fontWeight={'light'} userSelect={'none'}>
-            Inicia sesión
+            {isLoginPage ? 'Inicia sesión' : 'Crea tu cuenta'}
           </Text>
 
           <Formik
-            initialValues={{ username: '', password: '' }}
+            initialValues={{
+              username: '',
+              password: '',
+              email: '',
+              repeatPassword: '',
+            }}
             onSubmit={(values, actions) => {
               setError('');
               setLoading(true);
 
-              axios
-                .post(
-                  process.env.REACT_APP_BACKEND_URL + 'auth/token',
-                  qs.stringify({
-                    username: values.username,
-                    password: values.password,
-                  }),
-                  {
-                    headers: {
-                      'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                  }
-                )
-                .then(res => {
-                  //AUTH
-                  signIn({
-                    token: res.data.access_token,
-                    expiresIn: 120,
-                    tokenType: 'Bearer',
-                    authState: { username: values.username },
+              if (isLoginPage) {
+                //Login flow
+                axios
+                  .post(
+                    process.env.REACT_APP_BACKEND_URL + 'auth/token',
+                    qs.stringify({
+                      username: values.username,
+                      password: values.password,
+                    }),
+                    {
+                      headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                      },
+                    }
+                  )
+                  .then(res => {
+                    //AUTH
+                    signIn({
+                      token: res.data.access_token,
+                      expiresIn: 120,
+                      tokenType: 'Bearer',
+                      authState: { username: values.username },
+                    });
+
+                    //redirect to main page
+                    navigate('/', { replace: true });
+                  })
+                  .catch(err => {
+                    if (err && err.response && err.response.status === 422) {
+                      setError('Contraseña o usuario no válidos.'); // Provide a user-friendly error message for status code 422
+                    } else {
+                      if (err && err instanceof AxiosError) {
+                        if (err.response?.data?.detail)
+                          setError(err.response.data.detail);
+                        else setError(err.message);
+                      } else if (err && err instanceof Error)
+                        setError(err.message);
+                    }
+
+                    console.log('Error: ', err);
+                  })
+                  .finally(() => {
+                    setLoading(false);
                   });
+              } else {
+                //Register flow
+                console.log(values.password)
+                console.log(values.repeatPassword)
 
-                  //redirect to main page
-                  navigate('/', { replace: true });
-                })
-                .catch(err => {
-                  if (err && err.response && err.response.status === 422) {
-                    setError('Invalid username or password.'); // Provide a user-friendly error message for status code 422
-                  } else {
-                    if (err && err instanceof AxiosError) {
-                      if (err.response?.data?.detail)
-                        setError(err.response.data.detail);
-                      else setError(err.message);
-                    } else if (err && err instanceof Error)
-                      setError(err.message);
-                  }
-
-                  console.log('Error: ', err);
-                })
-                .finally(() => {
+                if (values.password !== values.repeatPassword) {
+                  setError('Las contraseñas deben coincidir');
                   setLoading(false);
-                });
+                } else {
+                  axios
+                    .post(
+                      process.env.REACT_APP_BACKEND_URL + 'auth/register',
+                      qs.stringify({
+                        username: values.username,
+                        password: values.password,
+                        email: values.email,
+                      }),
+                      {
+                        headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                      }
+                    )
+                    .then(res => {
+                      //AUTH
+                      signIn({
+                        token: res.data.access_token,
+                        expiresIn: 120,
+                        tokenType: 'Bearer',
+                        authState: { username: values.username },
+                      });
+
+                      //redirect to main page
+                      navigate('/', { replace: true });
+                    })
+                    .catch(err => {
+                      if (err && err.response && err.response.status === 422) {
+                        setError('Algo ha ido mal, revisa los campos'); 
+                      } else {
+                        if (err && err instanceof AxiosError) {
+                          if (err.response?.data?.detail)
+                            setError(err.response.data.detail);
+                          else setError(err.message);
+                        } else if (err && err instanceof Error)
+                          setError(err.message);
+                      }
+
+                      console.log('Error: ', err);
+                    })
+                    .finally(() => {
+                      setLoading(false);
+                    });
+                }
+              }
             }}
           >
             {props => (
@@ -116,7 +184,7 @@ const Login = () => {
                         {...field}
                         placeholder="Username"
                         mt="5"
-                        mb="2"
+                        mb={isLoginPage && '2'}
                         size="lg"
                         variant={'flushed'}
                         borderColor={'blackAlpha.300'}
@@ -130,6 +198,28 @@ const Login = () => {
                   )}
                 </Field>
 
+                {!isLoginPage && (
+                  <Field name="email">
+                    {({ field, form }) => (
+                      <FormControl
+                        isInvalid={form.errors.email && form.touched.email}
+                      >
+                        <Input
+                          {...field}
+                          placeholder="Email"
+                          mb="2"
+                          size="lg"
+                          variant={'flushed'}
+                          borderColor={'blackAlpha.300'}
+                          _placeholder={{ color: 'rgba(87,104,95,0.47)' }}
+                          autoComplete="off"
+                        />
+                        <FormErrorMessage>{form.errors.email}</FormErrorMessage>
+                      </FormControl>
+                    )}
+                  </Field>
+                )}
+
                 <Field name="password">
                   {({ field, form }) => (
                     <FormControl
@@ -139,6 +229,7 @@ const Login = () => {
                         {...field}
                         pr="4.5rem"
                         type={'password'}
+                        mb="2"
                         placeholder="Password"
                         variant={'flushed'}
                         borderColor={'blackAlpha.300'}
@@ -151,6 +242,33 @@ const Login = () => {
                     </FormControl>
                   )}
                 </Field>
+
+                {!isLoginPage && (
+                  <Field name="repeatPassword">
+                    {({ field, form }) => (
+                      <FormControl
+                        isInvalid={
+                          form.errors.repeatPassword &&
+                          form.touched.repeatPassword
+                        }
+                      >
+                        <Input
+                          {...field}
+                          pr="4.5rem"
+                          type={'password'}
+                          placeholder="Repeat Password"
+                          variant={'flushed'}
+                          borderColor={'blackAlpha.300'}
+                          _placeholder={{ color: 'rgba(87,104,95,0.47)' }}
+                        />
+
+                        <FormErrorMessage>
+                          {form.errors.repeatPasswords}
+                        </FormErrorMessage>
+                      </FormControl>
+                    )}
+                  </Field>
+                )}
 
                 <Text mt="5" color="red.400">
                   {error ? error : null}
@@ -167,6 +285,22 @@ const Login = () => {
               </Form>
             )}
           </Formik>
+          <HStack w="80%" mt="5">
+            <Box h="1px" bgColor="lightFontColor" w="100%" />
+            <Text fontWeight={'light'} fontSize={'sm'}>
+              o
+            </Text>
+            <Box h="1px" bgColor="lightFontColor" w="100%" />
+          </HStack>
+
+          <Text
+            fontWeight={'light'}
+            fontSize={'sm'}
+            onClick={handleRegisterClick}
+            cursor="pointer"
+          >
+            Registrate
+          </Text>
         </VStack>
       </HStack>
     </Center>

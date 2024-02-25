@@ -18,13 +18,13 @@ function App() {
             path="/"
             RequireAuth
             element={
-              <RequireAuth loginPath="/login">
+              <RequireAuth loginPath="/auth">
                 <Main />
               </RequireAuth>
             }
           />
           
-          <Route path="/login" element={<Login />} />
+          <Route path="/auth" element={<Login />} />
         </Routes>
       </Router>
     </ChakraProvider>
