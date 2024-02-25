@@ -21,19 +21,19 @@ const WateringBento = ({ colSpan, rowSpan }) => {
 
       <VStack mt="5" w="100%" align="left">
         <HStack spacing="5">
-          <Box w="32px" h="32px" borderWidth={"2px"} pt="1.5" align="center" borderRadius={10}>
+          <Box w="32px" h="32px" borderColor={'rgba(219,219,219,59)'} borderWidth={"2px"} pt="1.5" align="center" borderRadius={10}>
             <ImDroplet style={{ color: '#5EC0F6' }} />
           </Box>
           <Text fontWeight={'light'}>Umbral de humedad</Text>
         </HStack>
         <HStack spacing="5">
-          <Box w="32px" h="32px" borderWidth={"2px"} pt="1.5" align="center" borderRadius={10}>
+          <Box w="32px" h="32px" borderColor={'rgba(219,219,219,59)'} borderWidth={"2px"} pt="1.5" align="center" borderRadius={10}>
             <FiClock/>
           </Box>
           <Text fontWeight={'light'}>Hora programada</Text>
         </HStack>
         <HStack spacing="5">
-          <Box w="32px" h="32px" borderWidth={"2px"} pt="1.5" align="center" borderRadius={10}>
+          <Box w="32px" h="32px" borderColor={'rgba(219,219,219,59)'} borderWidth={"2px"} pt="1.5" align="center" borderRadius={10}>
             <BsGraphUp/>
           </Box>
           <Text fontWeight={'light'}>Riego Inteligente</Text>

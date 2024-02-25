@@ -1,9 +1,18 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { HStack, VStack, Spacer, Button, Heading, Text } from '@chakra-ui/react';
+import {
+  HStack,
+  VStack,
+  Spacer,
+  Button,
+  Heading,
+  Text,
+} from '@chakra-ui/react';
 import { FiCalendar } from 'react-icons/fi';
 import { HiLogout } from 'react-icons/hi';
 import { BiBell } from 'react-icons/bi';
+import { useSignOut } from 'react-auth-kit';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const daysOfWeek = [
@@ -36,14 +45,22 @@ const Header = () => {
     const date = new Date();
     const dayNumber = date.getDay();
     const monthNumber = date.getMonth();
-    const dayOfMonth = date.getDate()
+    const dayOfMonth = date.getDate();
 
     const dayName = daysOfWeek[dayNumber];
     const monthName = months[monthNumber];
     const year = date.getFullYear();
 
-    setDateString(dayName + " " + dayOfMonth + " " + monthName + " " + year);
+    setDateString(dayName + ' ' + dayOfMonth + ' ' + monthName + ' ' + year);
   }, []);
+
+  const signOut = useSignOut();
+  const navigate = useNavigate();
+
+  const logout = () => {
+    signOut();
+    navigate('/login');
+  };
   return (
     <HStack w="100%" maxW={'750px'}>
       <HStack mt="5">
@@ -66,7 +83,14 @@ const Header = () => {
         </Button>
 
         {/* Logout button */}
-        <Button w="40px" h="40px" p="0" bgColor={'white'} colorScheme="gray">
+        <Button
+          w="40px"
+          h="40px"
+          p="0"
+          bgColor={'white'}
+          colorScheme="gray"
+          onClick={logout}
+        >
           <HiLogout style={{ width: '20px', height: '20px', color: 'black' }} />
         </Button>
       </HStack>

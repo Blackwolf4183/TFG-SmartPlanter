@@ -20,8 +20,8 @@ const colors = {
     darkBg:"#183136",
     loginBg:"#A4C4B5",
     error: "#DA7676",
-    advice: "#78DA76"
-
+    advice: "#78DA76",
+    lightFontColor:"rgba(87,104,95,0.47)"
 };
 
 const fonts = {

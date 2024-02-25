@@ -16,8 +16,11 @@ function App() {
         <Routes>
           <Route
             path="/"
+            RequireAuth
             element={
+              <RequireAuth loginPath="/login">
                 <Main />
+              </RequireAuth>
             }
           />
           
