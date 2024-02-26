@@ -14,6 +14,7 @@ router = APIRouter()
 
 #TODO: add another layer of protection to add devices
 #Route to register device into db
+#This route is only meant to be used for development, as devices should be registered once they are manufactured into the system
 @router.post("/register")
 async def register_device(
     clientId: str = Form(...),

@@ -34,6 +34,7 @@ const Login = () => {
       <HStack maxW={'850px'} bgColor={'white'} h="500px">
         <VStack
           bgColor="loginBg"
+          color="white"
           h="100%"
           w="60%"
           justify={'center'}
@@ -94,7 +95,11 @@ const Login = () => {
                       token: res.data.access_token,
                       expiresIn: 120,
                       tokenType: 'Bearer',
-                      authState: { username: values.username },
+                      authState: { 
+                        username: values.username,
+                        //TODO: change device id with response from server
+                        deviceId: null
+                      },
                     });
 
                     //redirect to main page

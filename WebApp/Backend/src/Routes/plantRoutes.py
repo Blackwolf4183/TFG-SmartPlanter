@@ -9,9 +9,9 @@ from ..Controllers.securityController import User,get_current_user
 
 router = APIRouter()
 
-#Route to get token for client to log in
+#TODO: 
 @router.get("/")
-async def get_lastest_errors(device_id: str, current_user: Annotated[User, Depends(get_current_user)]):
+async def still_to_do(device_id: str, current_user: Annotated[User, Depends(get_current_user)]):
     try:
         return {"errors": errors}
     except HTTPException as http_exception:

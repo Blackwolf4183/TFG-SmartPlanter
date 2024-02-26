@@ -34,4 +34,4 @@ app.add_middleware(
 app.include_router(securityRoutes.router, prefix="/auth", tags=["auth"])
 app.include_router(errorRoutes.router, prefix="/errors", tags=["errors"])
 app.include_router(deviceRoutes.router, prefix="/devices", tags=["devices"])
-app.include_router(deviceRoutes.router, prefix="/plants", tags=["plants"])
+app.include_router(plantRoutes.router, prefix="/plants", tags=["plants"])
