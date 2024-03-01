@@ -20,20 +20,22 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     username: str | None = None
 
-
-
 class User(BaseModel):
     id: int
     username: str
     email: str
 
+class UserWithDevice(BaseModel):
+    id: int
+    username: str
+    email: str
+    deviceId: int
 
 class UserInDB(User):
     hashed_password: str
 
 #password context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
@@ -62,6 +64,19 @@ def get_user(username: str):
     else:
         raise HTTPException(status_code=404, detail="User not found")
 
+
+#Returns None if user doesn't have a device associated, returns the device id if user has already device associated
+def get_user_deviceID(user: UserInDB):
+    #Row from database representing connection between user and device
+    user_device = supabase.from_("userdevice").select("*").eq("userid", user.id).execute()
+
+    print("USER_DEVICE: ")
+    print(user_device.data)
+
+    if len(user_device.data) > 0:
+        return user_device.data[0]["deviceid"]
+    else:
+        return None
 
 
 #Given username and password check if user exists and password is correct, then return user

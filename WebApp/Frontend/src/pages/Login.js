@@ -14,8 +14,9 @@ import React, { useState } from 'react';
 import { Field, Form, Formik } from 'formik';
 import axios, { AxiosError } from 'axios';
 import { useSignIn } from 'react-auth-kit';
-import qs from 'qs';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+import qs from 'qs';
 
 const Login = () => {
   const [isLoginPage, setIsLoginPage] = useState(true);
@@ -70,7 +71,7 @@ const Login = () => {
               email: '',
               repeatPassword: '',
             }}
-            onSubmit={(values, actions) => {
+            onSubmit={(values) => {
               setError('');
               setLoading(true);
 
@@ -91,14 +92,18 @@ const Login = () => {
                   )
                   .then(res => {
                     //AUTH
+
+                    // Decode the JWT token to access its payload
+                    const decodedToken = jwtDecode(res.data.access_token);
+                    const { sub, deviceID } = decodedToken;
+
                     signIn({
                       token: res.data.access_token,
                       expiresIn: 120,
                       tokenType: 'Bearer',
-                      authState: { 
-                        username: values.username,
-                        //TODO: change device id with response from server
-                        deviceId: null
+                      authState: {
+                        username: sub,
+                        deviceId: deviceID,
                       },
                     });
 
@@ -124,8 +129,6 @@ const Login = () => {
                   });
               } else {
                 //Register flow
-                console.log(values.password)
-                console.log(values.repeatPassword)
 
                 if (values.password !== values.repeatPassword) {
                   setError('Las contraseñas deben coincidir');
@@ -147,11 +150,19 @@ const Login = () => {
                     )
                     .then(res => {
                       //AUTH
+
+                      // Decode the JWT token to access its payload
+                      const decodedToken = jwtDecode(res.data.access_token);
+                      const { sub, deviceID } = decodedToken;
+
                       signIn({
                         token: res.data.access_token,
                         expiresIn: 120,
                         tokenType: 'Bearer',
-                        authState: { username: values.username },
+                        authState: {
+                          username: sub,
+                          deviceId: deviceID,
+                        },
                       });
 
                       //redirect to main page
@@ -159,7 +170,7 @@ const Login = () => {
                     })
                     .catch(err => {
                       if (err && err.response && err.response.status === 422) {
-                        setError('Algo ha ido mal, revisa los campos'); 
+                        setError('Algo ha ido mal, revisa los campos');
                       } else {
                         if (err && err instanceof AxiosError) {
                           if (err.response?.data?.detail)
@@ -187,7 +198,7 @@ const Login = () => {
                     >
                       <Input
                         {...field}
-                        placeholder="Username"
+                        placeholder="Usuario"
                         mt="5"
                         mb={isLoginPage && '2'}
                         size="lg"
@@ -235,7 +246,7 @@ const Login = () => {
                         pr="4.5rem"
                         type={'password'}
                         mb="2"
-                        placeholder="Password"
+                        placeholder="Contraseña"
                         variant={'flushed'}
                         borderColor={'blackAlpha.300'}
                         _placeholder={{ color: 'rgba(87,104,95,0.47)' }}
@@ -261,7 +272,7 @@ const Login = () => {
                           {...field}
                           pr="4.5rem"
                           type={'password'}
-                          placeholder="Repeat Password"
+                          placeholder="Repite Contraseña"
                           variant={'flushed'}
                           borderColor={'blackAlpha.300'}
                           _placeholder={{ color: 'rgba(87,104,95,0.47)' }}

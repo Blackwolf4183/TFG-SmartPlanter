@@ -8,23 +8,31 @@ import Header from '../components/Header';
 import GraphicBento from '../components/BentoGridItems/GraphicBento';
 import AdviceBento from '../components/BentoGridItems/AdviceBento';
 import ExploreYourPlantBento from '../components/BentoGridItems/ExploreYourPlantBento';
+import LogToDeviceModal from '../components/LogToDeviceModal';
+
+import Cookies from 'js-cookie';
 
 import { useEffect } from 'react';
-import { useAuthUser } from 'react-auth-kit';
 import { useDisclosure } from '@chakra-ui/react';
-import LogToDeviceModal from '../components/LogToDeviceModal';
 
 const Main = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   //Auth details in cookies
-  const auth = useAuthUser();
 
   useEffect(() => {
-    if (auth.deviceId == null) {
-      //TODO: prompt user with screen to register or log plant
-      onOpen();
-    }
+    //TODO: find beteter solution
+    //Artificial timeout to give the cookies time to be set
+    setTimeout(() => {
+      const userAuthDataString = Cookies.get('_auth_state');
+      const userAuthDataObject = JSON.parse(userAuthDataString)
+      console.log(userAuthDataObject);
+      
+      if (userAuthDataObject.deviceId == undefined || userAuthDataObject.deviceId == null) {
+        //Prompt user with screen to register or log plant
+        onOpen();
+      }
+    }, 250);
   }, []);
 
   return (
