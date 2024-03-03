@@ -11,7 +11,7 @@ const ExploreYourPlantBento = ({colSpan, rowSpan}) => {
       borderRadius={'10'}
       p="30px"
     >
-        <Text>Conoce tu planta</Text>
+        <Text fontSize={"xl"}>Conoce tu planta</Text>
 
         
     </GridItem>

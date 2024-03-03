@@ -15,52 +15,23 @@ import { useSignOut } from 'react-auth-kit';
 import { useNavigate } from 'react-router-dom';
 
 import Cookies from 'js-cookie';
+import { getHeaderDate } from '../functions/utility';
 
 const Header = () => {
-  const daysOfWeek = [
-    'Lunes',
-    'Martes',
-    'Miercoles',
-    'Jueves',
-    'Viernes',
-    'Sábado',
-    'Domingo',
-  ];
-  const months = [
-    'Enero',
-    'Febrero',
-    'Marzo',
-    'Abril',
-    'Mayo',
-    'Junio',
-    'Julio',
-    'Agosto',
-    'Septiembre',
-    'Octubre',
-    'Noviembre',
-    'Diciembre',
-  ];
+
 
   const [dateString, setDateString] = useState('Lunes 1 Enero 1999');
   const [headerUsername, setHeaderUsername] = useState("")
 
-  /* TODO: extract into utility function */
   useEffect(() => {
-    const date = new Date();
-    const dayNumber = date.getDay();
-    const monthNumber = date.getMonth();
-    const dayOfMonth = date.getDate();
+    setDateString(getHeaderDate());
 
-    const dayName = daysOfWeek[dayNumber];
-    const monthName = months[monthNumber];
-    const year = date.getFullYear();
-
-    setDateString(dayName + ' ' + dayOfMonth + ' ' + monthName + ' ' + year);
-
-    const userAuthDataString = Cookies.get('_auth_state');
-    const { username } = JSON.parse(userAuthDataString);
-
-    setHeaderUsername(username)
+    setTimeout(() => {
+      const userAuthDataString = Cookies.get('_auth_state');
+      const { username } = JSON.parse(userAuthDataString);
+  
+      setHeaderUsername(username)
+    }, 250);
 
   }, []);
 

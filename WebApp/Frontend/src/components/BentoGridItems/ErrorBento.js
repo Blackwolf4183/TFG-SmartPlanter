@@ -3,7 +3,7 @@ import { Box, GridItem, HStack, Text, VStack } from '@chakra-ui/react';
 import useAxios from '../../functions/axiosHook';
 import ErrorsSkeleton from '../skeletons/ErrorsSkeleton';
 import Cookies from 'js-cookie';
-import formatDate from '../../functions/utility';
+import {formatDate} from '../../functions/utility.js'
 
 const ErrorBento = ({ colSpan, rowSpan }) => {
   const [url, setUrl] = useState('');
@@ -57,7 +57,7 @@ const ErrorBento = ({ colSpan, rowSpan }) => {
             return (
               <HStack
                 key={errorItem.id}
-                h="56px"
+                h="58px"
                 w="405px"
                 boxShadow={'rgba(0, 0, 0, 0.16) 0px 1px 4px;'}
                 borderRadius={10}
