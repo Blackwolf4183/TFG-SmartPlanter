@@ -16,21 +16,21 @@ const AverageIntake = ({ colSpan, rowSpan }) => {
       colSpan={colSpan}
       rowSpan={rowSpan}
       bg="card"
-      h="240px"
+      h="272px"
       borderRadius={'10'}
     >
       <Center>
-        <VStack spacing="5" mt="50px">
-          <Text  fontWeight={500} fontSize={'sm'}>
+        <VStack spacing="5" mt="60px">
+          <Text  fontWeight={500} fontSize={'xl'}>
             Consumo
           </Text>
           {/* TODO: make dynanic */}
-          <Text fontSize={'xl'} fontWeight={700}>
+          <Text fontSize={'2xl'} fontWeight={700}>
             0.67L / día
           </Text>
           <Flex
-            w="50px"
-            h="50px"
+            w="60px"
+            h="60px"
             borderRadius={'100%'}
             borderWidth={'2px'}
             borderColor={'rgba(219,219,219,59)'}
@@ -39,7 +39,7 @@ const AverageIntake = ({ colSpan, rowSpan }) => {
           >
             <Center>
               <ImDroplet
-                style={{ color: '#5EC0F6', width: '20px', height: '20px' }}
+                style={{ color: '#5EC0F6', width: '25px', height: '25px' }}
               />
             </Center>
           </Flex>

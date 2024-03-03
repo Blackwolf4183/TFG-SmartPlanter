@@ -10,33 +10,33 @@ const WateringBento = ({ colSpan, rowSpan }) => {
       colSpan={colSpan}
       rowSpan={rowSpan}
       bg="card"
-      h="240px"
+      h="272px"
       borderRadius={'10'}
       p="30px"
     >
-      <Text>Riego</Text>
-      <Text fontWeight={'light'} fontSize={'sm'}>
+      <Text fontSize={"xl"}>Riego</Text>
+      <Text fontWeight={'light'} fontSize={'md'}>
         Elegir tipo de riego
       </Text>
 
       <VStack mt="5" w="100%" align="left">
         <HStack spacing="5">
-          <Box w="32px" h="32px" borderColor={'rgba(219,219,219,59)'} borderWidth={"2px"} pt="1.5" align="center" borderRadius={10}>
-            <ImDroplet style={{ color: '#5EC0F6' }} />
+          <Box w="40px" h="40px" borderColor={'rgba(219,219,219,59)'} borderWidth={"2px"} pt="2" align="center" borderRadius={10}>
+            <ImDroplet style={{ color: '#5EC0F6',width:"20px", height:"20px" }} />
           </Box>
-          <Text fontWeight={'light'}>Umbral de humedad</Text>
+          <Text>Umbral de humedad</Text>
         </HStack>
         <HStack spacing="5">
-          <Box w="32px" h="32px" borderColor={'rgba(219,219,219,59)'} borderWidth={"2px"} pt="1.5" align="center" borderRadius={10}>
-            <FiClock/>
+          <Box w="40px" h="40px" borderColor={'rgba(219,219,219,59)'} borderWidth={"2px"} pt="2" align="center" borderRadius={10}>
+            <FiClock style={{ width:"20px", height:"20px" }}/>
           </Box>
-          <Text fontWeight={'light'}>Hora programada</Text>
+          <Text >Hora programada</Text>
         </HStack>
         <HStack spacing="5">
-          <Box w="32px" h="32px" borderColor={'rgba(219,219,219,59)'} borderWidth={"2px"} pt="1.5" align="center" borderRadius={10}>
-            <BsGraphUp/>
+          <Box w="40px" h="40px" borderColor={'rgba(219,219,219,59)'} borderWidth={"2px"} pt="2" align="center" borderRadius={10}>
+            <BsGraphUp style={{ width:"20px", height:"20px" }}/>
           </Box>
-          <Text fontWeight={'light'}>Riego Inteligente</Text>
+          <Text >Riego Inteligente</Text>
         </HStack>
       </VStack>
     </GridItem>

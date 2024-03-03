@@ -14,6 +14,8 @@ import { BiBell } from 'react-icons/bi';
 import { useSignOut } from 'react-auth-kit';
 import { useNavigate } from 'react-router-dom';
 
+import Cookies from 'js-cookie';
+
 const Header = () => {
   const daysOfWeek = [
     'Lunes',
@@ -40,7 +42,9 @@ const Header = () => {
   ];
 
   const [dateString, setDateString] = useState('Lunes 1 Enero 1999');
+  const [headerUsername, setHeaderUsername] = useState("")
 
+  /* TODO: extract into utility function */
   useEffect(() => {
     const date = new Date();
     const dayNumber = date.getDay();
@@ -52,6 +56,12 @@ const Header = () => {
     const year = date.getFullYear();
 
     setDateString(dayName + ' ' + dayOfMonth + ' ' + monthName + ' ' + year);
+
+    const userAuthDataString = Cookies.get('_auth_state');
+    const { username } = JSON.parse(userAuthDataString);
+
+    setHeaderUsername(username)
+
   }, []);
 
   const signOut = useSignOut();
@@ -61,15 +71,15 @@ const Header = () => {
     signOut();
     navigate('/auth');
   };
+
   return (
-    <HStack w="100%" maxW={'750px'}>
+    <HStack w="100%" maxW={'850px'}>
       <HStack mt="5">
         <VStack align="left" spacing="1">
-          <Heading fontSize={'2xl'}> ¡Bienvenido de vuelta!</Heading>
+          <Heading fontSize={'3xl'}> ¡Bienvenido de vuelta {headerUsername}!</Heading>
           <HStack ml="1">
             <FiCalendar style={{ width: '20px', height: '20px' }} />
-            {/* TODO: make dynamic */}
-            <Text fontWeight={'light'}>{dateString}</Text>
+            <Text fontSize={"xl"} fontWeight={'light'}>{dateString}</Text>
           </HStack>
         </VStack>
       </HStack>
@@ -78,20 +88,20 @@ const Header = () => {
 
       <HStack>
         {/* Notifications button */}
-        <Button w="40px" h="40px" p="0" bgColor={'white'} colorScheme="gray">
-          <BiBell style={{ width: '20px', height: '20px', color: 'black' }} />
+        <Button w="50px" h="50px" p="0" bgColor={'white'} colorScheme="gray">
+          <BiBell style={{ width: '25px', height: '25px', color: 'black' }} />
         </Button>
 
         {/* Logout button */}
         <Button
-          w="40px"
-          h="40px"
+          w="50px"
+          h="50px"
           p="0"
           bgColor={'white'}
           colorScheme="gray"
           onClick={logout}
         >
-          <HiLogout style={{ width: '20px', height: '20px', color: 'black' }} />
+          <HiLogout style={{ width: '25px', height: '25px', color: 'black' }} />
         </Button>
       </HStack>
     </HStack>

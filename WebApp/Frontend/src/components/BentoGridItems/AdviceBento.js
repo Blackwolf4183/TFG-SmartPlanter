@@ -7,7 +7,7 @@ const AdviceBento = ({colSpan, rowSpan}) => {
       colSpan={colSpan}
       rowSpan={rowSpan}
       bg="card"
-      h="240px"
+      h="272px"
       borderRadius={'10'}
       p="30px"
     >

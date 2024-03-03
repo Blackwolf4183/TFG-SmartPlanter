@@ -47,7 +47,7 @@ const Main = () => {
           <Grid
             mt="10"
             w="100%"
-            maxW={'750px'}
+            maxW={'850px'}
             templateRows="repeat(4, 1fr)"
             templateColumns="repeat(7, 1fr)"
             gap={4}
