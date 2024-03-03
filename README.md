@@ -22,7 +22,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Blackwolf4183/TFG-SmartPlanter">
-    <img src="images/logo.png" alt="Logo" width="100" height="100">
+    <img src="images/logo2.png" alt="Logo" width="200" >
   </a>
 
 <h3 align="center">SmartPlanter</h3>

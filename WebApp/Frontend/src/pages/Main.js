@@ -26,7 +26,6 @@ const Main = () => {
     setTimeout(() => {
       const userAuthDataString = Cookies.get('_auth_state');
       const userAuthDataObject = JSON.parse(userAuthDataString)
-      console.log(userAuthDataObject);
       
       if (userAuthDataObject.deviceId == undefined || userAuthDataObject.deviceId == null) {
         //Prompt user with screen to register or log plant
@@ -39,7 +38,7 @@ const Main = () => {
     <>
       {/* Modal for device details */}
       <LogToDeviceModal isOpen={isOpen} onClose={onClose} />
-      <Center>
+      <Center >
         <VStack w="100%" color="fontColor" mt="10">
           {/* Heading with message, date and buttons */}
           <Header />

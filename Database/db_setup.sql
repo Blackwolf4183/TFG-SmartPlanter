@@ -21,7 +21,8 @@ CREATE TABLE ErrorLog (
   id SERIAL PRIMARY KEY,
   ErrorMessage VARCHAR(255),
   ErrorTime TIMESTAMP,
-  Source VARCHAR(255)
+  Source VARCHAR(255),
+  ClientID VARCHAR(50) REFERENCES Device(ClientID)
 );
 
 CREATE TABLE "user" (

@@ -12,6 +12,8 @@ async def get_latest_errors(device_id, user):
     if len(device.data) == 0:
         raise HTTPException(status_code=404, detail="Device not found")
     
+    print("AQUI LLEGA")
+
     #Ceck if device belongs to user
     user_device = supabase.from_("userdevice").select("*").eq("id", device_id).eq("userid", user.id).execute()
     if len(user_device.data) == 0:

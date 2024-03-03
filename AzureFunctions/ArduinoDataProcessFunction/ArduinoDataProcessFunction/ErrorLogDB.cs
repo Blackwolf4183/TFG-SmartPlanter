@@ -19,5 +19,8 @@ namespace ArduinoDataProcessFunction
 
         [Column("source")]
         public string Source { get; set; }
+
+        [Column("clientid")]
+        public string ClientID { get; set; }
     }
 }

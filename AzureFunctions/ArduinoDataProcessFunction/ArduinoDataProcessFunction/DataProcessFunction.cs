@@ -95,7 +95,8 @@ namespace ArduinoDataProcessFunction
                         {
                             ErrorMessage = errorMessageDB,
                             ErrorTime = centralEuropeTime,
-                            Source = clientId + " - Validation"
+                            Source = clientId + " - Validation",
+                            ClientID = clientId
                         };
 
                         await supabase.From<ErrorLogDB>().Insert(errorLogDBModel);
@@ -118,6 +119,7 @@ namespace ArduinoDataProcessFunction
                     }
 
                 }
+                //Error that originates in ESP32
                 else
                 {
                     //Store error in DB
@@ -125,7 +127,8 @@ namespace ArduinoDataProcessFunction
                     {
                         ErrorMessage = arduinoDataJson.ErrorMessage,
                         ErrorTime = centralEuropeTime,
-                        Source = clientId
+                        Source = clientId + " - ESP32",
+                        ClientID = clientId
                     };
 
                     await supabase.From<ErrorLogDB>().Insert(errorLogDBModel);
