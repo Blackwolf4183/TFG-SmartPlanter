@@ -17,6 +17,12 @@ def device_exists(key: str = "clientid", value: str = None):
     device = supabase.from_("device").select("*").eq(key, value).execute()
     return len(device.data) > 0
 
+#Checks if user has associated device given deviceId(a number that identifies it) and userId
+def device_belongs_to_user(device_id: str, user_id: str):
+    #Retrieve row where userid == user.id && deviceId == device_id
+    user_device = supabase.from_("userdevice").select("*").eq("deviceid", device_id).eq("userid", user_id).execute()
+    return len(user_device.data) != 0
+
 #Creates device in DB
 async def create_device(clientId, password):
 

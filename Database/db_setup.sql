@@ -44,3 +44,48 @@ CREATE TABLE UserDevice (
   DeviceID INT REFERENCES Device(id) -- References the id from Device table
 );
 
+--FUNCTIONS
+
+create or replace function get_latest_reading(givenDeviceId int4)
+returns table(
+  id int4,
+  soilmoisture float,
+  temperature float,
+  airhumidity float,
+  lightlevel float,
+  "timestamp" timestamp,
+  deviceId int4
+)
+language sql
+as $$
+  SELECT arduinodata.id, arduinodata.soilmoisture, arduinodata.temperature, arduinodata.airhumidity, arduinodata.lightlevel, timestamp, device.id as deviceId
+  FROM arduinodata
+  JOIN device ON arduinodata.clientid = device.clientid
+  WHERE device.id = givenDeviceId
+  ORDER BY timestamp DESC
+  LIMIT 1;
+$$;
+
+--Example
+--SELECT * FROM get_latest_reading(1);
+
+create or replace function get_historical_readings(givenDeviceId int4)
+returns table(
+  id int4,
+  soilmoisture float,
+  temperature float,
+  airhumidity float,
+  lightlevel float,
+  "timestamp" timestamp,
+  deviceId int4
+)
+language sql
+as $$
+  SELECT arduinodata.id, arduinodata.soilmoisture, arduinodata.temperature, arduinodata.airhumidity, arduinodata.lightlevel, timestamp, device.id as deviceId
+  FROM arduinodata
+  JOIN device ON arduinodata.clientid = device.clientid
+  WHERE device.id = givenDeviceId;
+$$;
+
+--Example
+--SELECT * FROM get_historical_readings(1);   

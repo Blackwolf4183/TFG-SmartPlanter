@@ -70,9 +70,6 @@ def get_user_deviceID(user: UserInDB):
     #Row from database representing connection between user and device
     user_device = supabase.from_("userdevice").select("*").eq("userid", user.id).execute()
 
-    print("USER_DEVICE: ")
-    print(user_device.data)
-
     if len(user_device.data) > 0:
         return user_device.data[0]["deviceid"]
     else:
