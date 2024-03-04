@@ -47,8 +47,19 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-#Gets UserInDb (only hashed password)
 def get_user(username: str):
+    """
+    Gets UserInDb (only hashed password)
+
+    Args:
+        username (str): 
+
+    Raises:
+        HTTPException: status_code=status.HTTP_404_NOT_FOUND detail="User not found"
+
+    Returns:
+        UserInDb
+    """
 
     user = supabase.from_("user").select("*").eq("username", username).execute()
 
@@ -62,11 +73,17 @@ def get_user(username: str):
         )
         return user_in_db
     else:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
 
-#Returns None if user doesn't have a device associated, returns the device id if user has already device associated
-def get_user_deviceID(user: UserInDB):
+def get_user_deviceID(user: UserInDB) -> str :
+    """
+    Returns None if user doesn't have a device associated, returns the device id if user has already device associated
+
+    Args:
+        user (UserInDB): User details
+
+    """
     #Row from database representing connection between user and device
     user_device = supabase.from_("userdevice").select("*").eq("userid", user.id).execute()
 
@@ -76,8 +93,18 @@ def get_user_deviceID(user: UserInDB):
         return None
 
 
-#Given username and password check if user exists and password is correct, then return user
+
 def authenticate_user(username: str, password: str):
+    """
+    Given username and password check if user exists and password is correct, then return user
+
+    Args:
+        username (str): username
+        password (str): Plain password
+
+    Returns:
+        _type_: _description_
+    """
     user = get_user(username)
     if not user:
         return False
@@ -85,8 +112,18 @@ def authenticate_user(username: str, password: str):
         return False
     return user
 
-#Creates JWT token given data from user and expire time
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+    """
+    Creates JWT token given data from user and expire time
+
+    Args:
+        data (dict): Information to be encoded in token
+        expires_delta (timedelta | None, optional): time to expire . Defaults to None.
+
+    Returns:
+        str: JWT with encoded information
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -96,13 +133,23 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, os.environ.get("SECRET_KEY"), algorithm=os.environ.get("ALGORITHM"))
     return encoded_jwt
 
-#Returns user given token
+
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+    """
+    Returns user given token
+
+    Raises:
+        credentials_exception: HTTP 401 Could not validate credentials
+
+    Returns:
+        user
+    """
 
     try:
         payload = jwt.decode(token, os.environ.get("SECRET_KEY"), algorithms=[os.environ.get("ALGORITHM")])
@@ -118,18 +165,43 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise credentials_exception
     return user
 
-def user_exists(key: str = "email", value: str = None):
+def user_exists(key: str = "email", value: str = None) -> bool:
+    """
+    Checks if user exists in database based on a key and value 
+
+    Args:
+        key (str, optional): Key to look for in DB in users table. Defaults to "email".
+        value (str, optional): Value to search for depending on the key. Defaults to None.
+
+    Returns:
+        bool: true if user exists
+    """
     user = supabase.from_("user").select("*").eq(key, value).execute()
     return len(user.data) > 0
 
-#Creates user in DB
-async def create_user(username: str, email: EmailStr, password: str):
 
+async def create_user(username: str, email: EmailStr, password: str):
+    """
+    Creates user in DB
+
+    Args:
+        username (str): 
+        email (EmailStr):
+        password (str): 
+
+    Raises:
+        HTTPException: status_code=400 detail="Email already registered"
+        HTTPException: status_code=400 detail="Username already registered"
+        HTTPException: status_code=500 detail="User could not be created"
+
+    Returns:
+        User if it was correctly inserted in DB
+    """
     if user_exists(value=email):
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
     
     if user_exists(key="username", value=username):
-        raise HTTPException(status_code=400, detail="Username already registered")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already registered")
 
     # Hash the password before storing it
     hashed_password = get_password_hash(password)
@@ -145,7 +217,7 @@ async def create_user(username: str, email: EmailStr, password: str):
         response_user = User(id=inserted_user_data["id"], username=inserted_user_data["username"], email=inserted_user_data["email"])
         return {"message": "User created successfully", "user": response_user}
     else:
-        raise HTTPException(status_code=500, detail="User could not be created")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="User could not be created")
 
 
 

@@ -19,7 +19,7 @@ async def get_latest_plant_data(device_id: str, current_user: Annotated[User, De
     except HTTPException as http_exception:
         return JSONResponse(content={"message": f"HTTP Error {http_exception.status_code}: {http_exception.detail}"}, status_code=http_exception.status_code)
     except Exception as e:
-        return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=500)
+        return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @router.get("/historical-data")
 async def get_latest_plant_data(device_id: str, current_user: Annotated[User, Depends(get_current_user)]):
@@ -29,6 +29,6 @@ async def get_latest_plant_data(device_id: str, current_user: Annotated[User, De
     except HTTPException as http_exception:
         return JSONResponse(content={"message": f"HTTP Error {http_exception.status_code}: {http_exception.detail}"}, status_code=http_exception.status_code)
     except Exception as e:
-        return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=500)
+        return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
  

@@ -12,19 +12,50 @@ class Device(BaseModel):
     id: int
     clientId: str
 
-#Checks if device exists in database given one of its attributes
-def device_exists(key: str = "clientid", value: str = None):
+
+def device_exists(key: str = "clientid", value: str = None) -> bool:
+    """
+    Checks if device exists in database given one of its attributes
+
+    Args:
+        key (str, optional): attribute to look for in the db. Defaults to "clientid".
+        value (str, optional): value to search attribute. Defaults to None.
+
+    Returns:
+        bool: true if device exists 
+    """
     device = supabase.from_("device").select("*").eq(key, value).execute()
     return len(device.data) > 0
 
-#Checks if user has associated device given deviceId(a number that identifies it) and userId
-def device_belongs_to_user(device_id: str, user_id: str):
+
+def device_belongs_to_user(device_id: str, user_id: str) -> bool:
+    """
+    Checks if user has associated device given deviceId(a number that identifies it) and userId
+
+    Args:
+        device_id (str): number that id's the device in the database
+        user_id (str): user id
+
+    Returns:
+        bool: true if device belongs to user
+    """
     #Retrieve row where userid == user.id && deviceId == device_id
     user_device = supabase.from_("userdevice").select("*").eq("deviceid", device_id).eq("userid", user_id).execute()
     return len(user_device.data) != 0
 
 #Creates device in DB
-async def create_device(clientId, password):
+async def create_device(clientId:str, password:str):
+    """_summary_
+
+    Args:
+        clientId (str): _description_
+        password (str): _description_
+
+    Raises:
+        HTTPException: status_code=500 detail="El dispositivo no ha podido ser creado"
+        HTTPException: status_code=400 detail="El dispositivo ya está registrado"
+
+    """
 
     if device_exists(value=clientId):
         raise HTTPException(status_code=400, detail="El dispositivo ya está registrado")
@@ -45,9 +76,21 @@ async def create_device(clientId, password):
     else:
         raise HTTPException(status_code=500, detail="El dispositivo no ha podido ser creado")
 
-#Checks device password and id and if correct, creates a row in DB linking the user to an existing device
-async def link_user_to_device(device_id, device_password, user):
+async def link_user_to_device(device_id:str, device_password:str, user):
+    """
+    Checks device password and id and if correct, creates a row in DB linking the user to an existing device
 
+    Args:
+        device_id (str):
+        device_password (str): password for device  
+        user (User): 
+
+    Raises:
+        HTTPException: status_code=400 detail="No hay un dispositivo registrado con tal id"
+        HTTPException: status_code=401 detail="Contraseña incorrecta para el dispositivo"
+        HTTPException: status_code=400 detail="El usuario ya tiene un dispositivo enlazado"
+        HTTPException: status_code=500 detail="El dispositivo no ha podido ser enlazado con el usuario"
+    """
     #Password and device validation
     device = supabase.from_("device").select("*").eq("clientid", device_id).execute()
 

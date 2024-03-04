@@ -20,7 +20,7 @@ async def get_lastest_errors(device_id: str, current_user: Annotated[User, Depen
     except HTTPException as http_exception:
         return JSONResponse(content={"message": f"HTTP Error {http_exception.status_code}: {http_exception.detail}"}, status_code=http_exception.status_code)
     except Exception as e:
-        return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=500)
+        return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
 
