@@ -6,7 +6,7 @@ import math
 from ..database import create_supabase_client
 from ..Controllers.deviceController import device_exists, device_belongs_to_user
 
-from ..Models.IrrigationModel import IrrigationForm
+from ..Models.IrrigationModel import IrrigationForm, IrrigationData
 
 #Initialize supabase client
 supabase = create_supabase_client()
@@ -22,19 +22,19 @@ def get_plant_lastest_readings(device_id: str, user):
         user (User): 
 
     Raises:
-        HTTPException: status_code=404 detail="Device not found"
-        HTTPException: status_code=401 detail="User doesn't have access to device"
+        HTTPException: status_code=404 detail="Dispositivo no encontrado"
+        HTTPException: status_code=401 detail="El usuario no tiene acceso al dispositivo"
 
     Returns:
         Json object with latest readings of sensors
     """
     #Check if device exists
     if not device_exists("id", device_id):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Device not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispositivo no encontrado")
     
     #Check if device belongs to user
     if not device_belongs_to_user(device_id, user.id):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User doesn't have access to device")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="El usuario no tiene acceso al dispositivo")
     
     #Call database function for latest readings
     latest_readings_function_result = supabase.rpc("get_latest_reading",{'givendeviceid':device_id}).execute()
@@ -49,19 +49,19 @@ def get_plant_historical_readings(device_id: str, user):
         user (User):
 
     Raises:
-        HTTPException: status_code=404 detail="Device not found"
-        HTTPException: status_code=401 detail="User doesn't have access to device"
+        HTTPException: status_code=404 detail="Dispositivo no encontrado"
+        HTTPException: status_code=401 detail="El usuario no tiene acceso al dispositivo"
 
     Returns:
         Array of json objects with readings over time
     """
     #Check if device exists
     if not device_exists("id", device_id):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Device not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispositivo no encontrado")
     
     #Check if device belongs to user
     if not device_belongs_to_user(device_id, user.id):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User doesn't have access to device")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="El usuario no tiene acceso al dispositivo")
     
     #Call database function for latest readings
     historical_readings_function_result = supabase.rpc("get_historical_readings",{'givendeviceid':device_id}).execute()
@@ -79,16 +79,17 @@ async def create_plant_irrigation_registry(irrigation_data:IrrigationForm, user)
         user (_type_): User
 
     Raises:
-        HTTPException: status_code=404 detail="Device not found"
-        HTTPException: status_code=401 detail="User doesn't have access to device"
+        HTTPException: status_code=404 detail="Dispositivo no encontrado"
+        HTTPException: status_code=401 detail="El usuario no tiene acceso al dispositivo"
+        HTTPException: status_code=400 detail="Errores de validación"
     """
     #Check if device exists
     if not device_exists("id", irrigation_data.deviceId):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Device not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispositivo no encontrado")
     
     #Check if device belongs to user
     if not device_belongs_to_user(irrigation_data.deviceId, user.id):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User doesn't have access to device")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="El usuario no tiene acceso al dispositivo")
     
     #Delete previous information about irrigation for device
     supabase.from_("irrigation").delete().eq('deviceid',irrigation_data.deviceId).execute()
@@ -106,7 +107,8 @@ async def create_plant_irrigation_registry(irrigation_data:IrrigationForm, user)
 
             #Create registry in irrigation table with threshold to value specified and irrigation amount
             irrigation = supabase.from_("irrigation")\
-                    .insert({"deviceid": irrigation_data.deviceId, "irrigationtype": IRRIGATION_TYPE_THRESHOLD, "threshold": irrigation_data.threshold, "irrigationamount": irrigation_data.irrigationAmount})\
+                    .insert({"deviceid": irrigation_data.deviceId, "irrigationtype": IRRIGATION_TYPE_THRESHOLD, "threshold": irrigation_data.threshold, 
+                             "irrigationamount": irrigation_data.irrigationAmount})\
                     .execute()
 
             #If nothing comes back then there was an error creating it
@@ -122,7 +124,8 @@ async def create_plant_irrigation_registry(irrigation_data:IrrigationForm, user)
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se puede poner un intervalo de riego menor a 1 hora")
 
             irrigation = supabase.from_("irrigation")\
-                    .insert({"deviceid": irrigation_data.deviceId, "irrigationtype": IRRIGATION_TYPE_PROGRAMMED, "threshold": None, "irrigationamount": irrigation_data.irrigationAmount})\
+                    .insert({"deviceid": irrigation_data.deviceId, "irrigationtype": IRRIGATION_TYPE_PROGRAMMED, "threshold": None,
+                              "irrigationamount": irrigation_data.irrigationAmount, "everyhours": irrigation_data.everyHours})\
                     .execute()
             
             #If nothing comes back then there was an error creating it
@@ -152,7 +155,7 @@ async def create_plant_irrigation_registry(irrigation_data:IrrigationForm, user)
                 
                 initial_time += timedelta(hours=irrigation_data.everyHours)
         else:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect irrigation type")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Tipo de irrigación incorrecto")
         
     except:
         #Rollback any inserts that may have been made
@@ -161,3 +164,22 @@ async def create_plant_irrigation_registry(irrigation_data:IrrigationForm, user)
         raise
 
         
+async def get_irrigation_data(device_id:str, user) -> IrrigationData:
+    #Check if device exists
+    if not device_exists("id", device_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispositivo no encontrado")
+    
+    #Check if device belongs to user
+    if not device_belongs_to_user(device_id, user.id):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="El usuario no tiene acceso al dispositivo")
+    
+    #Retreive data from irrigation table
+    irrigation = supabase.from_("irrigation").select("*").eq("deviceid", device_id).execute()
+
+    if not irrigation or not irrigation.data:  # Check if irrigation data exists
+        return IrrigationData(irrigationType="none", irrigationAmount=0)
+    
+    
+    response_object = IrrigationData(irrigationType=irrigation.data[0]["irrigationtype"], threshold=irrigation.data[0]["threshold"], everyHours=irrigation.data[0]["everyhours"], irrigationAmount=irrigation.data[0]["irrigationamount"])
+
+    return response_object

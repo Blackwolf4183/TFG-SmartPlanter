@@ -7,3 +7,9 @@ class IrrigationForm(BaseModel):
     threshold: Optional[int] = None
     everyHours: Optional[int] = None
     irrigationAmount: float
+
+class IrrigationData(BaseModel):
+    irrigationType: str
+    threshold: Optional[int] = None
+    everyHours: Optional[int] = None
+    irrigationAmount: float

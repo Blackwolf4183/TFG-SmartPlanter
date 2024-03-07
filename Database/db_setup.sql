@@ -49,6 +49,7 @@ CREATE TABLE Irrigation (
   DeviceID INT REFERENCES Device(id) UNIQUE NOT NULL,
   IrrigationType VARCHAR(50) NOT NULL,
   Threshold INT,
+  EveryHours INT,
   IrrigationAmount FLOAT
 );
 
