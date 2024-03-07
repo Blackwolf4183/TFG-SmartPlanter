@@ -1,12 +1,18 @@
 from pydantic import BaseModel
 from fastapi import Depends, HTTPException, status
+from datetime import datetime, timedelta
+import math
 
 from ..database import create_supabase_client
 from ..Controllers.deviceController import device_exists, device_belongs_to_user
 
+from ..Models.IrrigationModel import IrrigationForm
+
 #Initialize supabase client
 supabase = create_supabase_client()
 
+IRRIGATION_TYPE_THRESHOLD = "THRESHOLD"
+IRRIGATION_TYPE_PROGRAMMED = "PROGRAMMED"
 
 def get_plant_lastest_readings(device_id: str, user):
     """
@@ -61,3 +67,97 @@ def get_plant_historical_readings(device_id: str, user):
     historical_readings_function_result = supabase.rpc("get_historical_readings",{'givendeviceid':device_id}).execute()
 
     return historical_readings_function_result.data
+
+
+async def create_plant_irrigation_registry(irrigation_data:IrrigationForm, user):
+    """
+        Creates in db a row in the table irrigation containing information about irrigation method, humidity threshold (if needed) and irrigation amount.
+        Also if the method is "programmed", then creates automatically in the table irrigationTimes rows to register the hours the plant should be watered.
+
+    Args:
+        irrigation_data (IrrigationForm): Class containing information that the client should pass to specify the watering needs
+        user (_type_): User
+
+    Raises:
+        HTTPException: status_code=404 detail="Device not found"
+        HTTPException: status_code=401 detail="User doesn't have access to device"
+    """
+    #Check if device exists
+    if not device_exists("id", irrigation_data.deviceId):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Device not found")
+    
+    #Check if device belongs to user
+    if not device_belongs_to_user(irrigation_data.deviceId, user.id):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User doesn't have access to device")
+    
+    #Delete previous information about irrigation for device
+    supabase.from_("irrigation").delete().eq('deviceid',irrigation_data.deviceId).execute()
+    supabase.from_("irrigationtimes").delete().eq('deviceid',irrigation_data.deviceId).execute()
+
+    try:
+        #Check irrigation type selected by client 
+        if irrigation_data.irrigationType == IRRIGATION_TYPE_THRESHOLD:
+
+            #Validation on threshold 
+            if irrigation_data.threshold == None:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se ha establecido un umbral de riego")
+            if irrigation_data.threshold < 1 or irrigation_data.threshold > 99:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El umbral de humedad para riego debe estar entre 1 y 100")
+
+            #Create registry in irrigation table with threshold to value specified and irrigation amount
+            irrigation = supabase.from_("irrigation")\
+                    .insert({"deviceid": irrigation_data.deviceId, "irrigationtype": IRRIGATION_TYPE_THRESHOLD, "threshold": irrigation_data.threshold, "irrigationamount": irrigation_data.irrigationAmount})\
+                    .execute()
+
+            #If nothing comes back then there was an error creating it
+            if not irrigation or not irrigation.data:  # Check if irrigation data exists
+                raise HTTPException(status_code=500, detail="No se ha podido insertar el método de riego")
+            
+        elif irrigation_data.irrigationType == IRRIGATION_TYPE_PROGRAMMED:
+            
+            #Validation on irrigation hours
+            if irrigation_data.everyHours == None:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se ha establecido un intervalo de riego")
+            if irrigation_data.everyHours < 1:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se puede poner un intervalo de riego menor a 1 hora")
+
+            irrigation = supabase.from_("irrigation")\
+                    .insert({"deviceid": irrigation_data.deviceId, "irrigationtype": IRRIGATION_TYPE_PROGRAMMED, "threshold": None, "irrigationamount": irrigation_data.irrigationAmount})\
+                    .execute()
+            
+            #If nothing comes back then there was an error creating it
+            if not irrigation or not irrigation.data:  # Check if device data exists
+                raise HTTPException(status_code=500, detail="No se ha podido insertar el método de riego")
+            
+            #Create as many registries as times in a day we want the plant to be watered
+            #For that we will divide in 24 hours in a day by the number of hours the user wants it's plant to be watered and create that number of registries
+            times_to_water_plant = 24 / irrigation_data.everyHours
+
+            # Define the initial time as midnight
+            starting_hour = math.ceil(times_to_water_plant) / 2
+
+            #No half hours
+            if(starting_hour == int(starting_hour)):
+                initial_time = datetime.strptime( str(int(starting_hour)) + ':00', '%H:%M')
+            else:
+                initial_time = datetime.strptime( str(int(starting_hour)) + ':30', '%H:%M')
+
+            for _ in range(math.ceil(times_to_water_plant)):
+                irrigation_times = supabase.from_("irrigationtimes")\
+                        .insert({"deviceid": irrigation_data.deviceId, "Time": initial_time.strftime('%H:%M')})\
+                        .execute()
+                
+                if not irrigation_times or not irrigation_times.data:  # Check if irrigation_times data exists
+                    raise HTTPException(status_code=500, detail="No se ha podido insertar el método de riego")
+                
+                initial_time += timedelta(hours=irrigation_data.everyHours)
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect irrigation type")
+        
+    except:
+        #Rollback any inserts that may have been made
+        supabase.from_("irrigation").delete().eq('deviceid',irrigation_data.deviceId).execute()
+        supabase.from_("irrigationtimes").delete().eq('deviceid',irrigation_data.deviceId).execute()
+        raise
+
+        

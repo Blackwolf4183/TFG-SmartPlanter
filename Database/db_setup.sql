@@ -36,12 +36,27 @@ CREATE TABLE UserPlant (
   id SERIAL PRIMARY KEY,
   UserID INT REFERENCES "user"(id),
   PlantReference VARCHAR(50)-- TODO: figure how to connect this to the plants api 
-)
+);
 
 CREATE TABLE UserDevice (
   id SERIAL PRIMARY KEY,
   UserID INT REFERENCES "user"(id), -- References the id from User table
   DeviceID INT REFERENCES Device(id) -- References the id from Device table
+);
+
+CREATE TABLE Irrigation (
+  id SERIAL PRIMARY KEY,
+  DeviceID INT REFERENCES Device(id) UNIQUE NOT NULL,
+  IrrigationType VARCHAR(50) NOT NULL,
+  Threshold INT,
+  IrrigationAmount FLOAT
+);
+
+CREATE TABLE IrrigationTimes (
+  id SERIAL PRIMARY KEY,
+  DeviceID INT REFERENCES Device(id) NOT NULL,
+  "Time" TIME NOT NULL,
+  Completed BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 --FUNCTIONS
@@ -89,3 +104,17 @@ $$;
 
 --Example
 --SELECT * FROM get_historical_readings(1);   
+
+-- Procedure to set to false all completed fields in irrigationTimes table
+CREATE OR REPLACE PROCEDURE update_irrigation_times()
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE irrigationtimes SET completed = FALSE;
+END;
+$$;
+
+-- cron schedule to 00:00 every day
+SELECT cron.schedule('0 0 * * *', 'CALL update_irrigation_times()');
+-- Example call
+--CALL update_irrigation_times();
