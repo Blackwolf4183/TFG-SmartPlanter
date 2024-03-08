@@ -1,4 +1,3 @@
-from pydantic import BaseModel
 from fastapi import Depends, HTTPException, status
 from datetime import datetime, timedelta
 import math
