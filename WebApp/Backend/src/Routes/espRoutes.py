@@ -12,10 +12,10 @@ router = APIRouter()
 
 #TODO: de momento lo dejamos abierto el endpoint, pero debería usar una API key para poder acceder de forma segura
 @router.get("/irrigate")
-async def get_should_irrigate_plant(client_id: str):
+async def get_should_irrigate_plant(client_id: str, soil_moisture: int):
     try:
-        irrigate_result = should_irrigate_plant(client_id)
-        return {"shouldIrrigate": irrigate_result}
+        irrigate_result = should_irrigate_plant(client_id, soil_moisture)
+        return irrigate_result
     except HTTPException as http_exception:
         return JSONResponse(content={"message": f"HTTP Error {http_exception.status_code}: {http_exception.detail}"}, status_code=http_exception.status_code)
     except Exception as e:

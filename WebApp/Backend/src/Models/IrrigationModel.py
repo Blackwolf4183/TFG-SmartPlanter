@@ -13,3 +13,7 @@ class IrrigationData(BaseModel):
     threshold: Optional[int] = None
     everyHours: Optional[int] = None
     irrigationAmount: float
+
+class ESPIrrigationInfo(BaseModel):
+    shouldIrrigate: bool
+    irrigationAmount: float
