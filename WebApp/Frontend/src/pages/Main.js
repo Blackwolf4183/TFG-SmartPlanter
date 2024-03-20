@@ -48,24 +48,24 @@ const Main = () => {
             mt="10"
             w="100%"
             maxW={'850px'}
-            templateRows="repeat(4, 1fr)"
+            templateRows="repeat(10, 136)"
             templateColumns="repeat(7, 1fr)"
             gap={4}
             mb="10"
           >
             {/* FIRST ROW */}
-            <LatestReadingsBento colSpan={5} rowSpan={1} />
-            <AverageIntake colSpan={2} rowSpan={1} />
+            <LatestReadingsBento colSpan={5} rowSpan={2} />
+            <AverageIntake colSpan={2} rowSpan={2} />
 
             {/* SECOND ROW */}
-            <WateringBento colSpan={3} rowSpan={1} />
-            <ErrorBento colSpan={4} rowSpan={1} />
+            <WateringBento colSpan={3} rowSpan={2} />
+            <ErrorBento colSpan={4} rowSpan={2} />
 
             {/* THIRD ROW */}
-            <GraphicBento colSpan={7} rowSpan={1} />
+            <GraphicBento colSpan={7} rowSpan={2} />
             {/* FOURTH ROW */}
-            <AdviceBento colSpan={4} rowSpan={1} />
-            <ExploreYourPlantBento colSpan={3} rowSpan={1} />
+            <AdviceBento colSpan={4} rowSpan={2} />
+            <ExploreYourPlantBento colSpan={3} rowSpan={2} />
           </Grid>
         </VStack>
       </Center>

@@ -23,26 +23,19 @@ const ErrorBento = ({ colSpan, rowSpan }) => {
   }, []);
 
   return (
-    /* TODO: add custom scrollbar */
     <GridItem
       colSpan={colSpan}
       rowSpan={rowSpan}
       bg="card"
-      h="272px"
+      h="408px"
       borderRadius={'10'}
       p="30px"
-      overflow={"auto"}
-      css={{
-        '&::-webkit-scrollbar': {
-          display: 'none', // Hide the scrollbar for WebKit browsers
-        },
-        '-ms-overflow-style': 'none', // Hide the scrollbar for IE and Edge
-        'scrollbar-width': 'none', // Hide the scrollbar for Firefox
-        overflow: 'auto', // Allow content to overflow
-      }}
     >
       <Text fontSize={"xl"}>Errores</Text>
 
+      <Box overflowY="auto" overflowX={"hidden"} maxHeight="400px" mt="1" className='scrollable'>
+
+      
       {/* Display error message if an error occurs */}
       {error && (
         <Text color="red.500" mt={4}>
@@ -85,6 +78,7 @@ const ErrorBento = ({ colSpan, rowSpan }) => {
         // Display skeleton loader while loading
         <ErrorsSkeleton />
       )}
+      </Box>
     </GridItem>
   );
 };

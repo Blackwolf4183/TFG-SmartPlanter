@@ -214,6 +214,6 @@ async def get_irrigation_data(device_id:str, user) -> IrrigationData:
         return IrrigationData(irrigationType="none", irrigationAmount=0)
     
     
-    response_object = IrrigationData(irrigationType=irrigation.data[0]["irrigationtype"], threshold=irrigation.data[0]["threshold"], everyHours=irrigation.data[0]["everyhours"], irrigationAmount=irrigation.data[0]["irrigationamount"])
+    response_object = IrrigationData(irrigationType=irrigation.data[0]["irrigationtype"], threshold=irrigation.data[0]["threshold"], everyHours=irrigation.data[0]["everyhours"], irrigationAmount=irrigation.data[0]["irrigationamount"] * IRRIGATION_AMOUNT_MULTIPLIER)
 
     return response_object

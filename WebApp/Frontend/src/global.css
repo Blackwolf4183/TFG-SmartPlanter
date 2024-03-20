@@ -3,3 +3,25 @@
 body {
     background-color: #EBF2FB;
 }
+
+
+
+.scrollable {
+    max-height: 200px; /* Adjust height as needed */
+    overflow-y: auto;
+}
+
+/* Style for scrollbar */
+.scrollable::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+    background-color: #a9a8a8; /* Color of the scrollbar thumb */
+    border-radius: 4px; /* Rounded corners for the thumb */
+}
+
+.scrollable::-webkit-scrollbar-track {
+    background: transparent; /* Background color of the scrollbar track */
+}
+  
