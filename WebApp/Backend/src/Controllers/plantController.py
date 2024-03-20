@@ -12,6 +12,7 @@ supabase = create_supabase_client()
 
 IRRIGATION_TYPE_THRESHOLD = "THRESHOLD"
 IRRIGATION_TYPE_PROGRAMMED = "PROGRAMMED"
+IRRIGATION_AMOUNT_MULTIPLIER = 16/1000 #16 ml/s for each millisecond
 
 def get_plant_lastest_readings(device_id: str, user):
     """
@@ -39,7 +40,35 @@ def get_plant_lastest_readings(device_id: str, user):
     latest_readings_function_result = supabase.rpc("get_latest_reading",{'givendeviceid':device_id}).execute()
 
     return latest_readings_function_result.data
-    
+
+def get_plant_daily_consumption(device_id: str, user):
+    """
+        Returns the amount of ml of water the plant has used today
+    Args:
+        device_id (str): 
+        user (User): 
+
+    Raises:
+        HTTPException: status_code=404 detail="Dispositivo no encontrado"
+        HTTPException: status_code=401 detail="El usuario no tiene acceso al dispositivo"
+
+    Returns:
+        Json object with daily watering consumption
+    """
+    #Get historial data from plant
+    historical_data = get_plant_historical_readings(device_id, user)
+    # Get today's date in the format 'YYYY-MM-DD'
+    today_date = datetime.now().strftime('%Y-%m-%d')
+
+    # Filter the array to get objects corresponding to today's date
+    filtered_data = [obj for obj in historical_data if obj['timestamp'].split('T')[0] == today_date]
+
+    watering_sum = 0
+    for obj in filtered_data:
+        watering_sum += obj["irrigationamount"] 
+
+    return watering_sum
+ 
 def get_plant_historical_readings(device_id: str, user):
     """
         Returns historial readings of registered device
@@ -65,7 +94,13 @@ def get_plant_historical_readings(device_id: str, user):
     #Call database function for latest readings
     historical_readings_function_result = supabase.rpc("get_historical_readings",{'givendeviceid':device_id}).execute()
 
-    return historical_readings_function_result.data
+    historical_data = historical_readings_function_result.data
+
+    #Multiply irrigationtime by ml/s
+    for obj in historical_data:
+        obj['irrigationamount'] *= IRRIGATION_AMOUNT_MULTIPLIER
+
+    return historical_data
 
 
 async def create_plant_irrigation_registry(irrigation_data:IrrigationForm, user):

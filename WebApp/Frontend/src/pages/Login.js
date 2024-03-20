@@ -150,23 +150,7 @@ const Login = () => {
                     )
                     .then(res => {
                       //AUTH
-
-                      // Decode the JWT token to access its payload
-                      const decodedToken = jwtDecode(res.data.access_token);
-                      const { sub, deviceID } = decodedToken;
-
-                      signIn({
-                        token: res.data.access_token,
-                        expiresIn: 120,
-                        tokenType: 'Bearer',
-                        authState: {
-                          username: sub,
-                          deviceId: deviceID,
-                        },
-                      });
-
-                      //redirect to main page
-                      navigate('/', { replace: true });
+                      setIsLoginPage(true)
                     })
                     .catch(err => {
                       if (err && err.response && err.response.status === 422) {

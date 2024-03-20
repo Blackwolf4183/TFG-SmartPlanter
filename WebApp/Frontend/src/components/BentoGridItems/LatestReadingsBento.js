@@ -1,9 +1,90 @@
-import React from 'react';
-import { GridItem, HStack, Spacer, VStack, Box, Text, Center } from '@chakra-ui/react';
-import { RiPlantFill } from "react-icons/ri";
-import { FaThermometerHalf,FaRegSun  } from "react-icons/fa";
+import React, { useEffect, useState } from 'react';
+import {
+  GridItem,
+  HStack,
+  Spacer,
+  VStack,
+  Box,
+  Text,
+  Center,
+  SkeletonText,
+  Skeleton,
+} from '@chakra-ui/react';
+import { RiPlantFill } from 'react-icons/ri';
+import { FaThermometerHalf, FaRegSun } from 'react-icons/fa';
+import useAxios from '../../functions/axiosHook';
+import Cookies from 'js-cookie';
 
 const LatestReadingsBento = ({ colSpan, rowSpan }) => {
+  const [lastestDataUrl, setLastestDataUrl] = useState('');
+  const [humidity, setHumidity] = useState('-');
+  const [temperature, setTemperature] = useState('-');
+  const [lightIntensity, setLightIntensity] = useState('-');
+  const [lastUpdated, setLastUpdated] = useState('');
+
+  const [componentLoading, setComponentLoading] = useState(true)
+
+  const {
+    data: lastestPlantData,
+    loading: lastestPlantDataLoading,
+    error: lastestPlantDataError,
+  } = useAxios(lastestDataUrl);
+
+  //Useffect to set latest plant data
+  useEffect(() => {
+    if (
+      !lastestPlantDataLoading &&
+      lastestPlantData?.data &&
+      lastestPlantData.data.length > 0
+    ) {
+      const data = lastestPlantData.data[0];
+      setHumidity(data.soilmoisture);
+      setTemperature(data.temperature);
+      setLightIntensity(data.lightlevel);
+
+      const timestamp = new Date(data.timestamp);
+      const now = new Date();
+      const differenceInMinutes = Math.round((now - timestamp) / (1000 * 60));
+
+      if (differenceInMinutes < 60) {
+        setLastUpdated(`Actualizado hace ~${differenceInMinutes} min`);
+      } else {
+        const differenceInHours = Math.round(differenceInMinutes / 60);
+        setLastUpdated(
+          `Actualizado hace ~${differenceInHours} hora${
+            differenceInHours > 1 ? 's' : ''
+          }`
+        );
+      }
+
+      setComponentLoading(false)
+    }
+
+    if (
+      !lastestPlantDataLoading &&
+      lastestPlantData?.data &&
+      lastestPlantData.data.length == 0
+    ) {
+      setLastUpdated(`No hay datos recientes de tu planta`);
+      setComponentLoading(false)
+    }
+  }, [lastestPlantData, lastestPlantDataLoading]);
+
+  //Useffect to get cookies and make enpoint calls
+  useEffect(() => {
+    setTimeout(() => {
+      //Get deviceId from cookies and make request by setting url with device_id param
+      const userAuthDataString = Cookies.get('_auth_state');
+      const { deviceId } = JSON.parse(userAuthDataString);
+
+      setLastestDataUrl(
+        process.env.REACT_APP_BACKEND_URL +
+          'plants/latest-data/?device_id=' +
+          deviceId
+      );
+    }, 250);
+  }, []);
+
   return (
     <GridItem
       colSpan={colSpan}
@@ -29,6 +110,7 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
             />
           </Box>
 
+          {/* TODO: falta enlazar la API de perenual */}
           <VStack align={'left'} spacing="0" pl="2">
             <Text fontWeight={'500'}>Aloe Vera</Text>
             <Text fontWeight={'light'} mt="-1">
@@ -37,38 +119,74 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
           </VStack>
 
           <Spacer />
-          {/* TODO: hacer dinamico */}
-          <Text fontWeight={'ligth'}>Actualizado hace ~24 min</Text>
+          <Text fontWeight={'ligth'}>
+            {componentLoading ? 'Actualizando...' : lastUpdated}
+          </Text>
         </HStack>
 
         <HStack mt="5" spacing="15px">
-
           {/* Humidity box */}
           <VStack
             w="150px"
             h="125px"
             borderRadius={10}
-            bgColor={"darkBg"}
-            justify={"center"}
+            bgColor={'darkBg'}
+            justify={'center'}
             spacing="0"
             pt="3"
           >
-            <HStack w="100%" justify={"center"} spacing="1">
-                <Box w="14px" h="14px" bgColor={"rgba(254,254,254,0.44)"}borderRadius={"100%"}/>
-                <Box w="21px" h="21px" bgColor={"rgba(254,254,254,0.44)"}borderRadius={"100%"}/>
-                <Box w="40px" h="40px" bgColor={"card"} borderRadius={"100%"}>
-                  <Center mt="2.5">
-                    <RiPlantFill style={{color:"#21A366", width:"20px", height:"20px"}}/>
-                  </Center>
-                </Box>
-                <Box w="21px" h="21px" bgColor={"rgba(254,254,254,0.44)"}borderRadius={"100%"}/>
-                <Box w="14px" h="14px" bgColor={"rgba(254,254,254,0.44)"}borderRadius={"100%"}/>
+            <HStack w="100%" justify={'center'} spacing="1">
+              <Box
+                w="14px"
+                h="14px"
+                bgColor={'rgba(254,254,254,0.44)'}
+                borderRadius={'100%'}
+              />
+              <Box
+                w="21px"
+                h="21px"
+                bgColor={'rgba(254,254,254,0.44)'}
+                borderRadius={'100%'}
+              />
+              <Box w="40px" h="40px" bgColor={'card'} borderRadius={'100%'}>
+                <Center mt="2.5">
+                  <RiPlantFill
+                    style={{ color: '#35ab4d', width: '20px', height: '20px' }}
+                  />
+                </Center>
+              </Box>
+              <Box
+                w="21px"
+                h="21px"
+                bgColor={'rgba(254,254,254,0.44)'}
+                borderRadius={'100%'}
+              />
+              <Box
+                w="14px"
+                h="14px"
+                bgColor={'rgba(254,254,254,0.44)'}
+                borderRadius={'100%'}
+              />
             </HStack>
-            
-            {/* TODO: hacer dinamico */}
-            <Text color="white" fontWeight={"reegular"} fontSize={"15px"} mt="2">72%</Text>
-            <Text color="rgba(255,255,255,0.73)" fontWeight={"light"} fontSize={"14px"} mt="-1">Humedad</Text>
 
+            <Skeleton isLoaded={!componentLoading} mt="2">
+              <Text
+                color="white"
+                fontWeight={'reegular'}
+                fontSize={'15px'}
+                
+              >
+                {humidity}%
+              </Text>
+            </Skeleton>
+            <Text
+              color="rgba(255,255,255,0.73)"
+              fontWeight={'light'}
+              fontSize={'14px'}
+              mt="0"
+            >
+              Humedad
+            </Text>
           </VStack>
 
           {/* Temperature box */}
@@ -79,22 +197,34 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
             borderRadius={10}
             borderColor={'rgba(219,219,219,0.56)'}
             pt="3"
-            justify={"center"}
+            justify={'center'}
             spacing="0"
           >
-            <HStack w="100%" justify={"center"} spacing="1">
-            <Box w="35px" h="35px" bgColor={"card"} borderRadius={"100%"}>
-                  <Center mt="2.5">
-                  <FaThermometerHalf style={{color:"black", width:"20px", height:"20px"}}/>
-                  </Center>
-                </Box>
+            <HStack w="100%" justify={'center'} spacing="1">
+              <Box w="35px" h="35px" bgColor={'card'} borderRadius={'100%'}>
+                <Center mt="2.5">
+                  <FaThermometerHalf
+                    style={{ color: 'black', width: '20px', height: '20px' }}
+                  />
+                </Center>
+              </Box>
             </HStack>
-            
-            {/* TODO: hacer dinamico */}
-            <Text  fontWeight={"regular"} fontSize={"15px"} mt="2">25º</Text>
-            <Text color="rgba(0,0,0,0.73)" fontWeight={"light"} fontSize={"14px"} mt="-1">Temperatura</Text>
+
+            <Skeleton isLoaded={!componentLoading} mt="2">
+              <Text fontWeight={'regular'} fontSize={'15px'} >
+                {temperature}º
+              </Text>
+            </Skeleton>
+            <Text
+              color="rgba(0,0,0,0.73)"
+              fontWeight={'light'}
+              fontSize={'14px'}
+              mt="0"
+            >
+              Temperatura
+            </Text>
           </VStack>
-          
+
           {/* Light box */}
           <VStack
             w="150px"
@@ -103,24 +233,56 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
             borderRadius={10}
             borderColor={'rgba(219,219,219,0.56)'}
             pt="3"
-            justify={"center"}
+            justify={'center'}
             spacing="0"
           >
-            <HStack w="100%" justify={"center"} spacing="1">
-                <Box w="14px" h="14px" bgColor={"rgba(251,190,34,0.17)"}borderRadius={"100%"}/>
-                <Box w="21px" h="21px" bgColor={"rgba(251,190,34,0.17)"}borderRadius={"100%"}/>
-                <Box w="40px" h="40px" bgColor={"rgba(251,190,34,0.17)"} borderRadius={"100%"}>
-                  <Center mt="2.5">
-                    <FaRegSun style={{color:"#FBBE22", width:"20px", height:"20px"}}/>
-                  </Center>
-                </Box>
-                <Box w="21px" h="21px" bgColor={"rgba(251,190,34,0.17)"}borderRadius={"100%"}/>
-                <Box w="14px" h="14px" bgColor={"rgba(251,190,34,0.17)"}borderRadius={"100%"}/>
+            <HStack w="100%" justify={'center'} spacing="1">
+              <Box
+                w="14px"
+                h="14px"
+                bgColor={'rgba(251,190,34,0.17)'}
+                borderRadius={'100%'}
+              />
+              <Box
+                w="21px"
+                h="21px"
+                bgColor={'rgba(251,190,34,0.17)'}
+                borderRadius={'100%'}
+              />
+              <Box
+                w="40px"
+                h="40px"
+                bgColor={'rgba(251,190,34,0.17)'}
+                borderRadius={'100%'}
+              >
+                <Center mt="2.5">
+                  <FaRegSun
+                    style={{ color: '#FBBE22', width: '20px', height: '20px' }}
+                  />
+                </Center>
+              </Box>
+              <Box
+                w="21px"
+                h="21px"
+                bgColor={'rgba(251,190,34,0.17)'}
+                borderRadius={'100%'}
+              />
+              <Box
+                w="14px"
+                h="14px"
+                bgColor={'rgba(251,190,34,0.17)'}
+                borderRadius={'100%'}
+              />
             </HStack>
-            
-            {/* TODO: hacer dinamico */}
-            <Text  fontWeight={"regular"} fontSize={"15px"} mt="2">72%</Text>
-            <Text  fontWeight={"light"} fontSize={"14px"} mt="-1">Intensidad de luz</Text>
+
+            <Skeleton isLoaded={!componentLoading} mt="2">
+              <Text fontWeight={'regular'} fontSize={'15px'} >
+                {lightIntensity}%
+              </Text>
+            </Skeleton>
+            <Text fontWeight={'light'} fontSize={'14px'} mt="0">
+              Intensidad lumínica
+            </Text>
           </VStack>
         </HStack>
       </VStack>

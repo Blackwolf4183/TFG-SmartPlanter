@@ -1,7 +1,7 @@
 import { VStack, Center, Grid } from '@chakra-ui/react';
 
 import LatestReadingsBento from '../components/BentoGridItems/LatestReadingsBento';
-import AverageIntake from '../components/BentoGridItems/AverageIntakeBento';
+import AverageIntake from '../components/BentoGridItems/WaterConsumptionBento';
 import WateringBento from '../components/BentoGridItems/WateringBento';
 import ErrorBento from '../components/BentoGridItems/ErrorBento';
 import Header from '../components/Header';

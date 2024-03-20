@@ -92,12 +92,13 @@ returns table(
   temperature float,
   airhumidity float,
   lightlevel float,
+  irrigationamount float, 
   "timestamp" timestamp,
   deviceId int4
 )
 language sql
 as $$
-  SELECT arduinodata.id, arduinodata.soilmoisture, arduinodata.temperature, arduinodata.airhumidity, arduinodata.lightlevel, timestamp, device.id as deviceId
+  SELECT arduinodata.id, arduinodata.soilmoisture, arduinodata.temperature, arduinodata.airhumidity, arduinodata.lightlevel, arduinodata.irrigationamount ,timestamp, device.id as deviceId
   FROM arduinodata
   JOIN device ON arduinodata.clientid = device.clientid
   WHERE device.id = givenDeviceId;
