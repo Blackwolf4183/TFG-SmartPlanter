@@ -21,7 +21,8 @@ const AverageIntake = ({ colSpan, rowSpan }) => {
   
   //Useffect to set consumption 
   useEffect(() => {
-    if(!loading && data?.consumption){
+
+    if(!loading && data !== null && data.consumption != null){
 
       let consumptionValue = data.consumption / 1000 
       consumptionValue = consumptionValue.toFixed(2)
