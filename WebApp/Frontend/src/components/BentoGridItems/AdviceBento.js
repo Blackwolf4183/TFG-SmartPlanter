@@ -11,7 +11,7 @@ const AdviceBento = ({colSpan, rowSpan}) => {
       borderRadius={'10'}
       p="30px"
     >
-        <Text>Consejos</Text>
+        <Text fontSize={'xl'}>Consejos</Text>
 
         {/* TODO: hacer errores dinamicos */}
         <VStack w="100%" justify={"left"} mt="2" align="left">
