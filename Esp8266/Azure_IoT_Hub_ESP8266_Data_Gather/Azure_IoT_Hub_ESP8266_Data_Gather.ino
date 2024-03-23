@@ -453,8 +453,8 @@ void deepSleepESP()
   delay(1000);
 
   Serial.println("Going to sleep for 10 seconds");
-  ESP.deepSleep(10e6); //TODO: change to correct period
-  //ESP.deepSleep(1800e6); //30 minutes between every wake of the ESP 
+  //ESP.deepSleep(10e6); //Uncomment this to have the ESP wake up each 10 seconds
+  ESP.deepSleep(1800e6); //30 minutes between every wake of the ESP 
   
   Serial.println("Esto no se debería ver");
 }

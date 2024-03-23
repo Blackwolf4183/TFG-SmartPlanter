@@ -11,13 +11,18 @@ import {
 import { ImDroplet } from 'react-icons/im';
 import { FiClock } from 'react-icons/fi';
 import useAxios from '../../functions/axiosHook';
+import { useToast } from '@chakra-ui/react';
 import Cookies from 'js-cookie';
 import WateringThresholdSlider from '../WateringThresholdSlider';
 import WateringTimeSlider from '../WateringTimeSlider';
 import WateringAmountSlider from '../WateringAmountSlider';
+import axios from 'axios';
 
 const WateringBento = ({ colSpan, rowSpan }) => {
-  
+
+  //Toast to showcase any possible errors from request
+  const requestResultToast = useToast()
+
   const [url, setUrl] = useState('');
   const [irrigationType, setIrrigationType] = useState("NONE")
   const [irrigationAmount, setIrrigationAmount] = useState(null)
@@ -62,6 +67,55 @@ const WateringBento = ({ colSpan, rowSpan }) => {
       );
     },250)
   }, []);
+
+  //Irrigation submitting controls
+
+  const [isIrrigationRequestLoading, setIsIrrigationRequestLoading] = useState(false)
+
+  const submitIrrigation = () => {
+    //Start irrigation request "loading"
+    setIsIrrigationRequestLoading(true)
+
+    //Get deviceId from cookies and make request by setting url with device_id param
+    const userAuthDataString = Cookies.get('_auth_state');
+    const { deviceId } = JSON.parse(userAuthDataString);
+
+    const irrigationRequestObject = {
+      "deviceId": deviceId,
+      "irrigationType": irrigationType,
+      "threshold": threshold,
+      "everyHours": everyHours,
+      "irrigationAmount": irrigationAmount
+    }
+
+    // Get the JWT from the '_auth' cookie
+    const jwt = Cookies.get('_auth');
+
+    // Set up the Axios headers with the JWT as a bearer token
+    const headers = {
+      Authorization: `Bearer ${jwt}`,
+    };
+
+    axios.post(process.env.REACT_APP_BACKEND_URL + 'plants/irrigation',irrigationRequestObject, {headers})
+    .then( res => {
+      requestResultToast({
+        title: 'Se ha aplicado el riego seleccionado',
+        status: 'success',
+        isClosable: true,
+      })
+    })
+    .catch(err => {
+      requestResultToast({
+        title: 'Error al realizar la petición',
+        status: 'error',
+        isClosable: true,
+      })
+    })
+    .finally(() => {
+      setIsIrrigationRequestLoading(false)
+    })
+    
+  }
 
   return (
     <GridItem
@@ -133,8 +187,7 @@ const WateringBento = ({ colSpan, rowSpan }) => {
 
         <WateringAmountSlider wateringAmount={irrigationAmount} updateIrrigationAmount={updateIrrigationAmount}/>
 
-        {/* TODO: terminar request cuando se haga click en el boton */}
-        <Button mt="5" colorScheme='blue'>Aplicar cambios</Button>
+        <Button mt="5" colorScheme='blue' isLoading={isIrrigationRequestLoading} onClick={submitIrrigation}>Aplicar cambios</Button>
       </VStack>
     </GridItem>
   );

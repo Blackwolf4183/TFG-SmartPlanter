@@ -142,7 +142,7 @@ async def create_plant_irrigation_registry(irrigation_data:IrrigationForm, user)
             #Create registry in irrigation table with threshold to value specified and irrigation amount
             irrigation = supabase.from_("irrigation")\
                     .insert({"deviceid": irrigation_data.deviceId, "irrigationtype": IRRIGATION_TYPE_THRESHOLD, "threshold": irrigation_data.threshold, 
-                             "irrigationamount": irrigation_data.irrigationAmount})\
+                             "irrigationamount": irrigation_data.irrigationAmount * (1/IRRIGATION_AMOUNT_MULTIPLIER)})\
                     .execute()
 
             #If nothing comes back then there was an error creating it
@@ -159,7 +159,7 @@ async def create_plant_irrigation_registry(irrigation_data:IrrigationForm, user)
 
             irrigation = supabase.from_("irrigation")\
                     .insert({"deviceid": irrigation_data.deviceId, "irrigationtype": IRRIGATION_TYPE_PROGRAMMED, "threshold": None,
-                              "irrigationamount": irrigation_data.irrigationAmount, "everyhours": irrigation_data.everyHours})\
+                              "irrigationamount": irrigation_data.irrigationAmount * (1/IRRIGATION_AMOUNT_MULTIPLIER), "everyhours": irrigation_data.everyHours})\
                     .execute()
             
             #If nothing comes back then there was an error creating it
@@ -192,7 +192,7 @@ async def create_plant_irrigation_registry(irrigation_data:IrrigationForm, user)
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Tipo de irrigación incorrecto")
         
     except:
-        #Rollback any inserts that may have been made
+        #"Rollback" any inserts that may have been made
         supabase.from_("irrigation").delete().eq('deviceid',irrigation_data.deviceId).execute()
         supabase.from_("irrigationtimes").delete().eq('deviceid',irrigation_data.deviceId).execute()
         raise

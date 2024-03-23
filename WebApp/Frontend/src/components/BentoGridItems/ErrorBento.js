@@ -33,7 +33,7 @@ const ErrorBento = ({ colSpan, rowSpan }) => {
     >
       <Text fontSize={"xl"}>Errores</Text>
 
-      <Box overflowY="auto" overflowX={"hidden"} maxHeight="400px" mt="1" className='scrollable'>
+      <Box overflowY="auto" overflowX={"hidden"} maxHeight="300px" mt="5" className='scrollable'>
 
       
       {/* Display error message if an error occurs */}
