@@ -5,7 +5,8 @@ import {
   GridItem,
   Text,
   VStack,
-  Skeleton
+  Skeleton,
+  useToast
 } from '@chakra-ui/react';
 import { ImDroplet } from 'react-icons/im';
 import useAxios from '../../functions/axiosHook';
@@ -19,6 +20,19 @@ const AverageIntake = ({ colSpan, rowSpan }) => {
 
   const { data, loading, error } = useAxios(url);
   
+  const requestResultToast = useToast();
+
+  //Useffect for errors on request
+  useEffect(() => {
+    if(error){
+      requestResultToast({
+        title: 'Algo ha fallado intentando obtener el consumo de agua.',
+        status: 'error',
+        isClosable: true,
+      })
+    }
+  }, [error])
+
   //Useffect to set consumption 
   useEffect(() => {
 

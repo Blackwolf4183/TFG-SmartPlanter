@@ -15,18 +15,18 @@ const daysOfWeek = [
     'Domingo',
   ];
   const months = [
-    'Enero',
-    'Febrero',
-    'Marzo',
-    'Abril',
-    'Mayo',
-    'Junio',
-    'Julio',
-    'Agosto',
-    'Septiembre',
-    'Octubre',
-    'Noviembre',
-    'Diciembre',
+    'enero',
+    'febrero',
+    'marzo',
+    'abril',
+    'mayo',
+    'junio',
+    'julio',
+    'agosto',
+    'septiembre',
+    'octubre',
+    'noviembre',
+    'ciciembre',
   ];
 
 export function getHeaderDate() {
@@ -39,7 +39,7 @@ export function getHeaderDate() {
     const monthName = months[monthNumber];
     const year = date.getFullYear();
 
-    const fullDateString = dayName + ' ' + dayOfMonth + ' ' + monthName + ' ' + year
+    const fullDateString = dayName + ' ' + dayOfMonth + ' de ' + monthName + ' ' + year
 
     return fullDateString
 }

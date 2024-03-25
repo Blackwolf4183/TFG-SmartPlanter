@@ -7,7 +7,7 @@ import {
   Box,
   Text,
   Center,
-  SkeletonText,
+  useToast,
   Skeleton,
 } from '@chakra-ui/react';
 import { RiPlantFill } from 'react-icons/ri';
@@ -29,6 +29,19 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
     loading: lastestPlantDataLoading,
     error: lastestPlantDataError,
   } = useAxios(lastestDataUrl);
+
+  const requestResultToast = useToast();
+
+  //Useffect for errors on request
+  useEffect(() => {
+    if(lastestPlantDataError){
+      requestResultToast({
+        title: 'Algo ha fallado intentando obtener las últimas lecturas.',
+        status: 'error',
+        isClosable: true,
+      })
+    }
+  }, [lastestPlantDataError])
 
   //Useffect to set latest plant data
   useEffect(() => {

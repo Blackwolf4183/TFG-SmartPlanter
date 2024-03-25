@@ -51,6 +51,17 @@ const WateringBento = ({ colSpan, rowSpan }) => {
       setEveryHours(data.everyHours)
     }
   }, [data, loading])
+
+  //Useffect for errors on request
+  useEffect(() => {
+    if(error){
+      requestResultToast({
+        title: 'Algo ha fallado intentando obtener los datos de riego.',
+        status: 'error',
+        isClosable: true,
+      })
+    }
+  }, [error])
   
 
   //Useffect to get cookies and make enpoint calls
@@ -155,7 +166,7 @@ const WateringBento = ({ colSpan, rowSpan }) => {
               style={{ color: '#5EC0F6', width: '20px', height: '20px' }}
             />
           </Box>
-          <Text>Umbral de humedad</Text>
+          <Text>Umbral de humedad:</Text>
         </HStack>
 
         <WateringThresholdSlider disabled={irrigationType !== "THRESHOLD"} threshold={threshold} updateThreshold={updateThreshold}/>
@@ -178,7 +189,7 @@ const WateringBento = ({ colSpan, rowSpan }) => {
           >
             <FiClock style={{ width: '20px', height: '20px' }} />
           </Box>
-          <Text>Hora programada</Text>
+          <Text>Intervalo de riego: </Text>
         </HStack>
 
         <WateringTimeSlider disabled={irrigationType !== "PROGRAMMED"} everyHours={everyHours} updateEveryHours={updateEveryHours}/>

@@ -5,7 +5,7 @@ import AverageIntake from '../components/BentoGridItems/WaterConsumptionBento';
 import WateringBento from '../components/BentoGridItems/WateringBento';
 import ErrorBento from '../components/BentoGridItems/ErrorBento';
 import Header from '../components/Header';
-import GraphicBento from '../components/BentoGridItems/GraphicBento';
+import GeneralGraphicBento from '../components/BentoGridItems/GeneralGraphicBento';
 import AdviceBento from '../components/BentoGridItems/AdviceBento';
 import ExploreYourPlantBento from '../components/BentoGridItems/ExploreYourPlantBento';
 import LogToDeviceModal from '../components/LogToDeviceModal';
@@ -14,6 +14,7 @@ import Cookies from 'js-cookie';
 
 import { useEffect } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
+import GraphicsBentoWrapper from '../components/GraphicsBentoWrapper';
 
 const Main = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -21,7 +22,7 @@ const Main = () => {
   //Auth details in cookies
 
   useEffect(() => {
-    //TODO: find beteter solution
+    //TODO: find better solution
     //Artificial timeout to give the cookies time to be set
     setTimeout(() => {
       const userAuthDataString = Cookies.get('_auth_state');
@@ -62,7 +63,7 @@ const Main = () => {
             <ErrorBento colSpan={4} rowSpan={2} />
 
             {/* THIRD ROW */}
-            <GraphicBento colSpan={7} rowSpan={2} />
+            <GraphicsBentoWrapper/>
             {/* FOURTH ROW */}
             <AdviceBento colSpan={4} rowSpan={2} />
             <ExploreYourPlantBento colSpan={3} rowSpan={2} />

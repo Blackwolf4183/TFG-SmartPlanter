@@ -7,6 +7,8 @@ const ErrorsSkeleton = () => {
       <Skeleton h="50px" w="405px" />
       <Skeleton h="50px" w="405px" />
       <Skeleton h="50px" w="405px" />
+      <Skeleton h="50px" w="405px" />
+      <Skeleton h="50px" w="405px" />
     </VStack>
   );
 };

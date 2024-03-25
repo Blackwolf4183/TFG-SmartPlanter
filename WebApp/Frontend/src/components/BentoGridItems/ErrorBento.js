@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, GridItem, HStack, Text, VStack } from '@chakra-ui/react';
+import { Box, GridItem, HStack, Text, VStack, useToast } from '@chakra-ui/react';
 import useAxios from '../../functions/axiosHook';
 import ErrorsSkeleton from '../skeletons/ErrorsSkeleton';
 import Cookies from 'js-cookie';
@@ -22,6 +22,20 @@ const ErrorBento = ({ colSpan, rowSpan }) => {
     }, 250);
   }, []);
 
+  const requestResultToast = useToast();
+
+  //Useffect for errors on request
+  useEffect(() => {
+    if(error){
+      requestResultToast({
+        title: 'Algo ha fallado intentando obtener los errores.',
+        status: 'error',
+        isClosable: true,
+      })
+    }
+  }, [error])
+  
+
   return (
     <GridItem
       colSpan={colSpan}
@@ -36,12 +50,7 @@ const ErrorBento = ({ colSpan, rowSpan }) => {
       <Box overflowY="auto" overflowX={"hidden"} maxHeight="300px" mt="5" className='scrollable'>
 
       
-      {/* Display error message if an error occurs */}
-      {error && (
-        <Text color="red.500" mt={4}>
-          Algo ha fallado intentando obtener los errores.
-        </Text>
-      )}
+
     
       {/* Display data if it's not loading and no error */}
       {!loading && !error && data.errors ? (
