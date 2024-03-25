@@ -13,9 +13,9 @@ import { FiClock } from 'react-icons/fi';
 import useAxios from '../../functions/axiosHook';
 import { useToast } from '@chakra-ui/react';
 import Cookies from 'js-cookie';
-import WateringThresholdSlider from '../WateringThresholdSlider';
-import WateringTimeSlider from '../WateringTimeSlider';
-import WateringAmountSlider from '../WateringAmountSlider';
+import WateringThresholdSlider from '../Sliders/WateringThresholdSlider';
+import WateringTimeSlider from '../Sliders/WateringTimeSlider';
+import WateringAmountSlider from '../Sliders/WateringAmountSlider';
 import axios from 'axios';
 
 const WateringBento = ({ colSpan, rowSpan }) => {

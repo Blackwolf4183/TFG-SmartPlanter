@@ -62,9 +62,10 @@ const Main = () => {
             <WateringBento colSpan={3} rowSpan={2} />
             <ErrorBento colSpan={4} rowSpan={2} />
 
-            {/* THIRD ROW */}
+            {/* THIRD ,FOURTH AND FITH ROW */}
             <GraphicsBentoWrapper/>
-            {/* FOURTH ROW */}
+
+            {/* SIXTH ROW */}
             <AdviceBento colSpan={4} rowSpan={2} />
             <ExploreYourPlantBento colSpan={3} rowSpan={2} />
           </Grid>

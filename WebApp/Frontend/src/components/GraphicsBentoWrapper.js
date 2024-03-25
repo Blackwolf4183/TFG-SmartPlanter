@@ -3,6 +3,8 @@ import GeneralGraphicBento from './BentoGridItems/GeneralGraphicBento';
 import useAxios from '../functions/axiosHook';
 import Cookies from 'js-cookie';
 import WaterConsumptionGraphicBento from './BentoGridItems/WaterConsumptionGraphicBento';
+import TemperatureGraphicBento from './BentoGridItems/TemperatureGraphicBento';
+import ErrorGraphicBento from './BentoGridItems/ErrorGraphicBento';
 
 const GraphicsBentoWrapper = () => {
   const [url, setUrl] = useState('');
@@ -44,9 +46,16 @@ const GraphicsBentoWrapper = () => {
 
   return (
     <>
+      {/* THIRD ROW */}
       <GeneralGraphicBento colSpan={7} rowSpan={2} historicalData={historicalData} graphicsLoading={graphicsLoading}/>
 
+      {/* FOURTH ROW */}
+      <ErrorGraphicBento colSpan={3} rowSpan={2}/>
+      <TemperatureGraphicBento colSpan={4} rowSpan={2} historicalData={historicalData} graphicsLoading={graphicsLoading}/>
+
+      {/* FIFTH ROW */}
       <WaterConsumptionGraphicBento colSpan={7} rowSpan={2} historicalData={historicalData} graphicsLoading={graphicsLoading}/>
+
     </>
   );
 };

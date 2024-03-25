@@ -1,16 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import {
-  GridItem,
-  Text,
-  VStack,
-  Spinner,
-  HStack,
-  Spacer,
-  Select,
-} from '@chakra-ui/react';
-import BarChartComponent from '../Graphics/BarChartComponent';
+import React, { useState, useEffect } from 'react';
+import { GridItem, Text, VStack, Spinner,HStack,Spacer,Select } from '@chakra-ui/react';
+import TemperatureChartComponent from '../Graphics/TemperatureChartComponent';
 
-const WaterConsumptionGraphicBento = ({
+const TemperatureGraphicBento = ({
   colSpan,
   rowSpan,
   historicalData,
@@ -20,10 +12,16 @@ const WaterConsumptionGraphicBento = ({
 
   useEffect(() => {
     if (historicalData) {
-      //Filter out temperature as we don't want it for this graph
+      //Get object with only temperature and timestamp
       const filteredData = historicalData.map(item => {
-        const { temperature, ...rest } = item; // Use object destructuring to remove 'temperature'
-        return rest; // Return the object without 'temperature'
+        const {
+          soilmoisture,
+          airhumidity,
+          irrigationamount,
+          lightlevel,
+          ...rest
+        } = item; // Use object destructuring to get 'temperature' and timestamp
+        return rest;
       });
 
       setGraphicsHistoricalData(filteredData);
@@ -59,10 +57,9 @@ const WaterConsumptionGraphicBento = ({
       h="408px"
       borderRadius={'10'}
       p="30px"
-      minW={'850px'}
     >
       <HStack>
-        <Text fontSize={'xl'}>Gráfico de riego</Text>
+        <Text fontSize={'lg'}>Temperatura</Text>
         <Spacer />
         <Select
           w="150px"
@@ -79,20 +76,20 @@ const WaterConsumptionGraphicBento = ({
 
       {graphicsLoading ? (
         <VStack>
-          <Spinner size={'lg'} mt="130px" />
+          <Spinner size={'lg'} mt="80px" />
         </VStack>
       ) : graphicsHistoricalData.length === 0 ? (
-        <VStack>
-          <Text mt="130px">
+        <VStack pl="5" pr="5">
+          <Text mt="120px">
             No hay datos que mostrar, empieza a recolectar datos encendiendo tu
             maceta.
           </Text>
         </VStack>
       ) : (
-        <BarChartComponent data={graphicsHistoricalData} />
+        <TemperatureChartComponent data={graphicsHistoricalData} />
       )}
     </GridItem>
   );
 };
 
-export default WaterConsumptionGraphicBento;
+export default TemperatureGraphicBento;

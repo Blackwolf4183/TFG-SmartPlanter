@@ -11,9 +11,9 @@ import {
   VStack,
   useCheckboxGroup 
 } from '@chakra-ui/react';
-import ChartComponent from '../ChartComponent';
+import ChartComponent from '../Graphics/ChartComponent';
 
-const GeneralGraphicBento = ({ colSpan, rowSpan, historicalData,graphicsLoading }) => {
+const GeneralGraphicBento = ({ colSpan, rowSpan, historicalData, graphicsLoading }) => {
   
   const [graphicsHistoricalData, setGraphicsHistoricalData] = useState([]);
   
@@ -25,8 +25,8 @@ const GeneralGraphicBento = ({ colSpan, rowSpan, historicalData,graphicsLoading 
 
         //Filter out temperature as we don't want it for this graph
         const filteredData = historicalData.map(item => {
-          const { temperature, ...rest } = item; // Use object destructuring to remove 'propertyToRemove'
-          return rest; // Return the object without 'propertyToRemove'
+          const { temperature, ...rest } = item; // Use object destructuring to remove 'temperature'
+          return rest; // Return the object without 'temperature'
         })
   
         setGraphicsHistoricalData(filteredData);
