@@ -10,11 +10,15 @@ const ErrorBento = ({ colSpan, rowSpan }) => {
 
   const { data, loading, error } = useAxios(url);
 
+  const [deviceId, setDeviceId] = useState(null)
+
   useEffect(() => {
     setTimeout(() => {
       //Get deviceId from cookies and make request by setting url with device_id param
       const userAuthDataString = Cookies.get('_auth_state');
       const { deviceId } = JSON.parse(userAuthDataString);
+
+      setDeviceId(deviceId)
 
       setUrl(
         process.env.REACT_APP_BACKEND_URL + 'errors/?device_id=' + deviceId
@@ -26,7 +30,7 @@ const ErrorBento = ({ colSpan, rowSpan }) => {
 
   //Useffect for errors on request
   useEffect(() => {
-    if(error){
+    if(error && deviceId){
       requestResultToast({
         title: 'Algo ha fallado intentando obtener los errores.',
         status: 'error',

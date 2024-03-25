@@ -12,8 +12,7 @@ const AdviceBento = ({colSpan, rowSpan}) => {
       p="30px"
     >
         <Text fontSize={'xl'}>Consejos</Text>
-
-        {/* TODO: hacer errores dinamicos */}
+        {/* TODO: make dynamic */}
         <VStack w="100%" justify={"left"} mt="2" align="left">
             <HStack h="50px" w="360px" boxShadow={"rgba(0, 0, 0, 0.16) 0px 1px 4px;"} borderRadius={10}>
                 <Box h="70%" w="5px" ml="2" bgColor={"advice"} borderRadius={10}/>

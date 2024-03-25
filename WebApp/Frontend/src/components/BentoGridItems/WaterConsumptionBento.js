@@ -17,6 +17,7 @@ const AverageIntake = ({ colSpan, rowSpan }) => {
   const [url, setUrl] = useState('');
   const [consumption, setConsumption] = useState("-L / día")
   const [componentLoading, setComponentLoading] = useState(true)
+  const [deviceId, setDeviceId] = useState(null)
 
   const { data, loading, error } = useAxios(url);
   
@@ -24,7 +25,7 @@ const AverageIntake = ({ colSpan, rowSpan }) => {
 
   //Useffect for errors on request
   useEffect(() => {
-    if(error){
+    if(error && deviceId){
       requestResultToast({
         title: 'Algo ha fallado intentando obtener el consumo de agua.',
         status: 'error',
@@ -52,6 +53,8 @@ const AverageIntake = ({ colSpan, rowSpan }) => {
       //Get deviceId from cookies and make request by setting url with device_id param
       const userAuthDataString = Cookies.get('_auth_state');
       const { deviceId } = JSON.parse(userAuthDataString);
+
+      setDeviceId(deviceId)
 
       setUrl(
         process.env.REACT_APP_BACKEND_URL +

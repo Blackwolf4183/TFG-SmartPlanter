@@ -52,7 +52,7 @@ const Login = () => {
             Gestión inteligente de tu planta de forma online
           </Text>
           <Text textAlign={'center'} fontWeight={'light'} maxW="300px">
-            Monitoriza y riega tu planta desde la comodidad de tu móvil
+            Monitoriza y riega tu planta desde la comodidad de tu ordenador
           </Text>
         </VStack>
 

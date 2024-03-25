@@ -19,7 +19,6 @@ import { getHeaderDate } from '../functions/utility';
 
 const Header = () => {
 
-
   const [dateString, setDateString] = useState('Lunes 1 Enero 1999');
   const [headerUsername, setHeaderUsername] = useState("")
 

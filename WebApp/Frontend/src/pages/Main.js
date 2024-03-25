@@ -5,7 +5,6 @@ import AverageIntake from '../components/BentoGridItems/WaterConsumptionBento';
 import WateringBento from '../components/BentoGridItems/WateringBento';
 import ErrorBento from '../components/BentoGridItems/ErrorBento';
 import Header from '../components/Header';
-import GeneralGraphicBento from '../components/BentoGridItems/GeneralGraphicBento';
 import AdviceBento from '../components/BentoGridItems/AdviceBento';
 import ExploreYourPlantBento from '../components/BentoGridItems/ExploreYourPlantBento';
 import LogToDeviceModal from '../components/LogToDeviceModal';
@@ -13,19 +12,23 @@ import LogToDeviceModal from '../components/LogToDeviceModal';
 import Cookies from 'js-cookie';
 
 import { useEffect } from 'react';
+import { useSignOut } from 'react-auth-kit';
 import { useDisclosure } from '@chakra-ui/react';
 import GraphicsBentoWrapper from '../components/GraphicsBentoWrapper';
 
 const Main = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  //Auth details in cookies
+  const signOut = useSignOut();
 
+  //Auth details in cookies
   useEffect(() => {
-    //TODO: find better solution
     //Artificial timeout to give the cookies time to be set
     setTimeout(() => {
       const userAuthDataString = Cookies.get('_auth_state');
+
+      if(!userAuthDataString) signOut();
+
       const userAuthDataObject = JSON.parse(userAuthDataString)
       
       if (userAuthDataObject.deviceId == undefined || userAuthDataObject.deviceId == null) {

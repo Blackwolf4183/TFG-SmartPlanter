@@ -21,6 +21,7 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
   const [temperature, setTemperature] = useState('-');
   const [lightIntensity, setLightIntensity] = useState('-');
   const [lastUpdated, setLastUpdated] = useState('');
+  const [deviceId, setDeviceId] = useState(null)
 
   const [componentLoading, setComponentLoading] = useState(true)
 
@@ -34,7 +35,7 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
 
   //Useffect for errors on request
   useEffect(() => {
-    if(lastestPlantDataError){
+    if(lastestPlantDataError && deviceId){
       requestResultToast({
         title: 'Algo ha fallado intentando obtener las últimas lecturas.',
         status: 'error',
@@ -89,6 +90,8 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
       //Get deviceId from cookies and make request by setting url with device_id param
       const userAuthDataString = Cookies.get('_auth_state');
       const { deviceId } = JSON.parse(userAuthDataString);
+
+      setDeviceId(deviceId);
 
       setLastestDataUrl(
         process.env.REACT_APP_BACKEND_URL +

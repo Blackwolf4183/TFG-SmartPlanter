@@ -63,7 +63,7 @@ const GeneralGraphicBento = ({ colSpan, rowSpan, historicalData, graphicsLoading
       h="408px"
       borderRadius={'10'}
       p="30px"
-      minW={'850px'} /* TODO: esto hacerlo con todos */
+      minW={'850px'} 
     >
       <HStack>
         <Text fontSize={'xl'}>Estadísticas de tu planta</Text>
@@ -101,8 +101,8 @@ const GeneralGraphicBento = ({ colSpan, rowSpan, historicalData, graphicsLoading
           fontWeight={400}
           onChange={filterDataByTime}
         >
-          <option value="WEEK">Última semana</option>
           <option value="TODAY">Hoy</option>
+          <option value="WEEK">Última semana</option>
           <option value="ALL">Todo</option>
         </Select>
       </HStack>

@@ -6,7 +6,12 @@ import WaterConsumptionGraphicBento from './BentoGridItems/WaterConsumptionGraph
 import TemperatureGraphicBento from './BentoGridItems/TemperatureGraphicBento';
 import ErrorGraphicBento from './BentoGridItems/ErrorGraphicBento';
 
+import { useSignOut } from 'react-auth-kit';
+
 const GraphicsBentoWrapper = () => {
+
+  const signOut = useSignOut();
+
   const [url, setUrl] = useState('');
   const [historicalData, setHistoricalData] = useState([]);
   //Useffect to get cookies and make enpoint calls
@@ -14,7 +19,9 @@ const GraphicsBentoWrapper = () => {
     setTimeout(() => {
       //Get deviceId from cookies and make request by setting url with device_id param
       const userAuthDataString = Cookies.get('_auth_state');
-      //TODO: if para evitar parse de undefined
+
+      if(!userAuthDataString) signOut();
+
       const { deviceId } = JSON.parse(userAuthDataString);
 
       setUrl(

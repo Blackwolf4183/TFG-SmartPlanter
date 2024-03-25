@@ -24,6 +24,7 @@ const WateringBento = ({ colSpan, rowSpan }) => {
   const requestResultToast = useToast()
 
   const [url, setUrl] = useState('');
+  const [deviceId, setDeviceId] = useState(null)
   const [irrigationType, setIrrigationType] = useState("NONE")
   const [irrigationAmount, setIrrigationAmount] = useState(null)
   const [threshold, setThreshold] = useState(null)
@@ -54,7 +55,7 @@ const WateringBento = ({ colSpan, rowSpan }) => {
 
   //Useffect for errors on request
   useEffect(() => {
-    if(error){
+    if(error && deviceId){
       requestResultToast({
         title: 'Algo ha fallado intentando obtener los datos de riego.',
         status: 'error',
@@ -70,6 +71,8 @@ const WateringBento = ({ colSpan, rowSpan }) => {
       //Get deviceId from cookies and make request by setting url with device_id param
       const userAuthDataString = Cookies.get('_auth_state');
       const { deviceId } = JSON.parse(userAuthDataString);
+
+      setDeviceId(deviceId);
 
       setUrl(
         process.env.REACT_APP_BACKEND_URL +

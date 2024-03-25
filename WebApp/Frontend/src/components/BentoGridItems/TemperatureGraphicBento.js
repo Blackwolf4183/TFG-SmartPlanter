@@ -68,8 +68,8 @@ const TemperatureGraphicBento = ({
           fontWeight={400}
           onChange={filterDataByTime}
         >
-          <option value="WEEK">Última semana</option>
           <option value="TODAY">Hoy</option>
+          <option value="WEEK">Última semana</option>
           <option value="ALL">Todo</option>
         </Select>
       </HStack>
