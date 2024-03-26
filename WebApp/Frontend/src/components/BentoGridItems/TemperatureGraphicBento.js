@@ -76,7 +76,7 @@ const TemperatureGraphicBento = ({
 
       {graphicsLoading ? (
         <VStack>
-          <Spinner size={'lg'} mt="80px" />
+          <Spinner size={'lg'} mt="120px" />
         </VStack>
       ) : graphicsHistoricalData.length === 0 ? (
         <VStack pl="5" pr="5">

@@ -44,7 +44,7 @@ const ErrorGraphicBento = ({ colSpan, rowSpan }) => {
         )
       ) : (
         <VStack>
-          <Spinner size={'lg'} mt="80px" />
+          <Spinner size={'lg'} mt="120px" />
         </VStack>
       )}
     </GridItem>

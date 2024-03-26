@@ -2,10 +2,13 @@ from fastapi import Depends, HTTPException, status
 from datetime import datetime, timedelta
 import math
 
+from typing import List
+
 from ..database import create_supabase_client
 from ..Controllers.deviceController import device_exists, device_belongs_to_user
 
 from ..Models.IrrigationModel import IrrigationForm, IrrigationData
+from ..Models.PlantInfoModel import PlantInfo
 
 #Initialize supabase client
 supabase = create_supabase_client()
@@ -217,3 +220,140 @@ async def get_irrigation_data(device_id:str, user) -> IrrigationData:
     response_object = IrrigationData(irrigationType=irrigation.data[0]["irrigationtype"], threshold=irrigation.data[0]["threshold"], everyHours=irrigation.data[0]["everyhours"], irrigationAmount=irrigation.data[0]["irrigationamount"] * IRRIGATION_AMOUNT_MULTIPLIER)
 
     return response_object
+
+
+def plant_exists(value: str) -> bool:
+    """
+    Checks if plant exists in database given its id
+
+    Args:
+        value (str, optional): value to search id.
+
+    Returns:
+        bool: true if device exists 
+    """
+    plant = supabase.from_("plantinfo").select("*").eq("id", value).execute()
+    return len(plant.data) > 0
+
+async def create_plant_info_registry(device_id:str, plant_id:str , user):
+    """
+    Creates association in DB between available plants in DB and device 
+
+    Args:
+        device_id (str): device_id
+        plant_id (str): plant_id
+        user (_type_): user
+
+    Raises:
+        HTTPException: status_code=404 detail="Dispositivo no encontrado"
+        HTTPException: status_code=401 detail="El usuario no tiene acceso al dispositivo"
+        HTTPException: status_code=404 detail="No existe la planta indicada en nuestro sistema"
+    """
+    #Check if device exists
+    if not device_exists("id", device_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispositivo no encontrado")
+    
+    #Check if device belongs to user
+    if not device_belongs_to_user(device_id, user.id):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="El usuario no tiene acceso al dispositivo")
+    
+    #Check if plant_id exists in DB
+    if not plant_exists(plant_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No existe la planta indicada en nuestro sistema")
+
+    #Delete previous registry (if existed)
+    supabase.from_("deviceplant").delete().eq('deviceid',device_id).execute()
+
+    #Create new registry
+    supabase.from_("deviceplant").insert({"deviceid": device_id, "plantid": plant_id}).execute()
+
+
+async def get_plant_data(device_id:str , user) -> PlantInfo:
+    """Devuelve la información de la planta asociada un dispositivo
+
+    Args:
+        device_id (str): _description_
+        user (_type_): _description_
+
+    Raises:
+        HTTPException: status_code=404 detail="Dispositivo no encontrado"
+        HTTPException: status_code=401 detail="El usuario no tiene acceso al dispositivo"
+        HTTPException: status_code=404 detail="El usuario no ha escogido una planta aun"
+
+    Returns:
+        PlantInfo: _description_
+    """
+    if not device_exists("id", device_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispositivo no encontrado")
+    
+    #Check if device belongs to user
+    if not device_belongs_to_user(device_id, user.id):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="El usuario no tiene acceso al dispositivo")
+
+    #Search plant associated with user by deviceId
+    deviceplant = supabase.from_("deviceplant").select("*").eq("deviceid", device_id).execute()
+    if len(deviceplant.data) == 0: 
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="El usuario no ha escogido una planta aun")
+    
+    plant_id =deviceplant.data[0]["plantid"] 
+
+    plantinfo_request = supabase.from_("plantinfo").select("*").eq("id", plant_id).execute()
+    plantinfo_data = plantinfo_request.data[0]
+
+    return PlantInfo(plantId=plantinfo_data["id"] ,commonName=plantinfo_data["commonname"] , scientificName=plantinfo_data["scientificname"] , 
+                     imageUrl= plantinfo_data["imageurl"], watering= plantinfo_data["watering"],sunlight= plantinfo_data["sunlight"],
+                    plantDescription= plantinfo_data["plantdescription"],careLevel= plantinfo_data["carelevel"],maxTemp= plantinfo_data["maxtemperature"],
+                    minTemp= plantinfo_data["mintemperature"])
+
+    
+async def get_plant_list() -> List[PlantInfo]:
+    plant_info_list = []
+    plant_info_request = supabase.from_("plantinfo").select("*").execute()
+    plant_info_data = plant_info_request.data
+    
+    for plant_data in plant_info_data:
+        plant_info_list.append(
+            PlantInfo(
+                plantId=plant_data["id"],
+                commonName=plant_data["commonname"],
+                scientificName=plant_data["scientificname"],
+                imageUrl=plant_data["imageurl"],
+                watering=plant_data["watering"],
+                sunlight=plant_data["sunlight"],
+                plantDescription=plant_data["plantdescription"],
+                careLevel=plant_data["carelevel"],
+                maxTemp=plant_data["maxtemperature"],
+                minTemp=plant_data["mintemperature"]
+            )
+        )
+    
+    return plant_info_list
+
+async def retrieve_user_plant(device_id:str , user) -> int: 
+    """Devuelve el plantId asociado a un dispositivo (null si no existe)
+
+    Args:
+        device_id (str): _description_
+        user (_type_): _description_
+
+    Raises:
+        HTTPException: status_code=404 detail="Dispositivo no encontrado"
+        HTTPException: status_code=401 detail="El usuario no tiene acceso al dispositivo"
+
+    Returns:
+        int: plantId
+    """
+    #Check if device exists
+    if not device_exists("id", device_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispositivo no encontrado")
+    
+    #Check if device belongs to user
+    if not device_belongs_to_user(device_id, user.id):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="El usuario no tiene acceso al dispositivo")
+    
+    #Get plantId for user
+    deviceplant = supabase.from_("deviceplant").select("*").eq("deviceid", device_id).execute()
+    if len(deviceplant.data) == 0: 
+        return None
+    else:
+        return deviceplant.data[0]["plantid"]

@@ -32,10 +32,32 @@ CREATE TABLE "user" (
   Email VARCHAR(150)
 );
 
-CREATE TABLE UserPlant (
+CREATE TABLE PlantInfo (
   id SERIAL PRIMARY KEY,
-  UserID INT REFERENCES "user"(id),
-  PlantReference VARCHAR(50)-- TODO: figure how to connect this to the plants api 
+  PerenualID INT UNIQUE,
+  CommonName VARCHAR(255),
+  ScientificName VARCHAR(255),
+  ImageUrl VARCHAR(255),
+  Watering VARCHAR(255),
+  Sunlight VARCHAR(255),
+  PlantDescription VARCHAR,
+  CareLevel VARCHAR,
+  MinTemperature INT,
+  MaxTemperature INT
+);
+
+
+CREATE TABLE PlantGuide (
+  id SERIAL PRIMARY KEY,
+  PlantID INT REFERENCES PlantInfo(id),
+  GuideType VARCHAR(255),
+  Description VARCHAR(255)
+);
+
+CREATE TABLE DevicePlant (
+  id SERIAL PRIMARY KEY,
+  DeviceID INT REFERENCES Device(id) UNIQUE, -- References the id from Device table
+  PlantId INT REFERENCES PlantInfo(id)
 );
 
 CREATE TABLE UserDevice (
