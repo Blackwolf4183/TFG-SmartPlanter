@@ -76,12 +76,12 @@ async def create_device(clientId:str, password:str):
     else:
         raise HTTPException(status_code=500, detail="El dispositivo no ha podido ser creado")
 
-async def link_user_to_device(device_id:str, device_password:str, user):
+async def link_user_to_device(client_id:str, device_password:str, user) -> str:
     """
     Checks device password and id and if correct, creates a row in DB linking the user to an existing device
 
     Args:
-        device_id (str):
+        client_id (str):
         device_password (str): password for device  
         user (User): 
 
@@ -92,7 +92,7 @@ async def link_user_to_device(device_id:str, device_password:str, user):
         HTTPException: status_code=500 detail="El dispositivo no ha podido ser enlazado con el usuario"
     """
     #Password and device validation
-    device = supabase.from_("device").select("*").eq("clientid", device_id).execute()
+    device = supabase.from_("device").select("*").eq("clientid", client_id).execute()
 
     if(len(device.data) == 0):
         #No device registered with that id
@@ -114,3 +114,5 @@ async def link_user_to_device(device_id:str, device_password:str, user):
     
     if not user_device or not user_device.data:  # Check if device data exists
         raise HTTPException(status_code=500, detail="El dispositivo no ha podido ser enlazado con el usuario")
+    
+    return device.data[0]["id"]

@@ -10,8 +10,8 @@ import {
   useToast,
   Skeleton,
 } from '@chakra-ui/react';
-import { RiPlantFill } from 'react-icons/ri';
 import { FaThermometerHalf, FaRegSun } from 'react-icons/fa';
+import { RiPlantLine } from "react-icons/ri";
 import useAxios from '../../functions/axiosHook';
 import Cookies from 'js-cookie';
 
@@ -166,7 +166,7 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
               />
               <Box w="40px" h="40px" bgColor={'card'} borderRadius={'100%'}>
                 <Center mt="2.5">
-                  <RiPlantFill
+                  <RiPlantLine
                     style={{ color: '#35ab4d', width: '20px', height: '20px' }}
                   />
                 </Center>

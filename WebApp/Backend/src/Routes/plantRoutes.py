@@ -69,8 +69,8 @@ async def get_irrigation_info(device_id:str, current_user: Annotated[User, Depen
     except Exception as e:
         return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-@router.post("/", response_model=IrrigationData)
-async def create_plant_registry(device_id:str, plant_id:str, current_user: Annotated[User, Depends(get_current_user)]) -> IrrigationData:
+@router.post("")
+async def create_plant_registry(device_id:str, plant_id:str, current_user: Annotated[User, Depends(get_current_user)]):
     try:
         await create_plant_info_registry(device_id, plant_id, current_user)
         return JSONResponse(content={"message": "Registro de planta creado existosamente"}, status_code=status.HTTP_201_CREATED)

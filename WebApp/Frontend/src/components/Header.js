@@ -7,17 +7,18 @@ import {
   Button,
   Heading,
   Text,
+  Tooltip
 } from '@chakra-ui/react';
 import { FiCalendar } from 'react-icons/fi';
 import { HiLogout } from 'react-icons/hi';
-import { BiBell } from 'react-icons/bi';
+import { RiPlantLine } from "react-icons/ri";
 import { useSignOut } from 'react-auth-kit';
 import { useNavigate } from 'react-router-dom';
 
 import Cookies from 'js-cookie';
 import { getHeaderDate } from '../functions/utility';
 
-const Header = () => {
+const Header = ({onOpenChangePlant}) => {
 
   const [dateString, setDateString] = useState('Lunes 1 Enero 1999');
   const [headerUsername, setHeaderUsername] = useState("")
@@ -58,21 +59,26 @@ const Header = () => {
 
       <HStack>
         {/* Notifications button */}
-        <Button w="50px" h="50px" p="0" bgColor={'white'} colorScheme="gray">
-          <BiBell style={{ width: '25px', height: '25px', color: 'black' }} />
-        </Button>
+        <Tooltip hasArrow label='Cambiar planta' bg='white' borderRadius={"xl"}>
+          <Button w="50px" h="50px" p="0" bgColor={'white'} colorScheme="gray" _hover={{"bgColor":"rgba(255,255,255,0.6)"}} onClick={onOpenChangePlant}>
+            <RiPlantLine style={{ width: '25px', height: '25px', color: 'black' }} />
+          </Button>
+        </Tooltip>
 
         {/* Logout button */}
-        <Button
-          w="50px"
-          h="50px"
-          p="0"
-          bgColor={'white'}
-          colorScheme="gray"
-          onClick={logout}
-        >
-          <HiLogout style={{ width: '25px', height: '25px', color: 'black' }} />
-        </Button>
+        <Tooltip hasArrow label='Salir de la cuenta' bg='white' borderRadius={"xl"}>
+          <Button
+            w="50px"
+            h="50px"
+            p="0"
+            bgColor={'white'}
+            colorScheme="gray"
+            onClick={logout}
+            _hover={{"bgColor":"rgba(255,255,255,0.6)"}}
+          >
+            <HiLogout style={{ width: '25px', height: '25px', color: 'black' }} />
+          </Button>
+        </Tooltip>
       </HStack>
     </HStack>
   );

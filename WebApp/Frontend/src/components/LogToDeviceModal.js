@@ -19,13 +19,13 @@ import Cookies from 'js-cookie';
 const LogToDeviceModal = ({ isOpen, onClose }) => {
   const requestResultToast = useToast();
 
-  const [deviceID, setDeviceID] = useState('');
+  const [clientId, setClientId] = useState('');
   const [password, setPassword] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChangeDeviceID = e => {
-    setDeviceID(e.target.value);
+  const handleChangeClientId = e => {
+    setClientId(e.target.value);
   };
 
   const handleChangePassword = e => {
@@ -46,16 +46,24 @@ const LogToDeviceModal = ({ isOpen, onClose }) => {
       const response = await axios.post(
         process.env.REACT_APP_BACKEND_URL + 'devices/link',
         {
-          device_id: deviceID,
+          client_id: clientId,
           device_password: password,
         },
         { headers }
       );
 
-      if (response.status === 200) {
-        //TODO: cerrar modal y siguiente etapa
-        //TODO: escribir en las cookies el deviceId para que quede registrado y no vuelva a mostrar formulario
-        console.log('Successful response'); // Handle successful response
+      if (response.status === 200 || response.status === 201) {
+        // Decode and update the _auth_state cookie
+        const userAuthDataString = Cookies.get('_auth_state');
+        let userAuthDataObject = JSON.parse(userAuthDataString);
+        userAuthDataObject.deviceId = response.data?.deviceId; // Update deviceId with response from server
+
+        let authStateCookie = JSON.stringify(userAuthDataObject);
+        // Set the updated cookie
+        Cookies.set('_auth_state', authStateCookie);
+
+        // Refresh the page
+        window.location.reload();
       }
     } catch (err) {
       console.error('Error occurred:', err);
@@ -102,7 +110,7 @@ const LogToDeviceModal = ({ isOpen, onClose }) => {
                 borderColor={'fontColor'}
                 autoComplete="off"
                 _placeholder={{ color: 'rgba(87,104,95,0.47)' }}
-                onChange={handleChangeDeviceID}
+                onChange={handleChangeClientId}
               />
 
               <Input
