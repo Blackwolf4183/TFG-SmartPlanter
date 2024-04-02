@@ -3,24 +3,23 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  Image,
   ModalBody,
   Button,
   Input,
   VStack,
-  HStack,
   Box,
   useToast,
   InputGroup,
-  InputRightElement,
   InputLeftElement,
-  Text,
+  Spinner,
+  ModalCloseButton,
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
 import Cookies from 'js-cookie';
 import useAxios from '../functions/axiosHook';
 import { GoSearch } from 'react-icons/go';
+import PlantCard from './PlantCard';
 
 const ChangePlantModal = ({ isOpen, onClose }) => {
   const requestResultToast = useToast();
@@ -69,12 +68,14 @@ const ChangePlantModal = ({ isOpen, onClose }) => {
       };
 
       const response = await axios.post(
-        process.env.REACT_APP_BACKEND_URL + 'plants',
+        process.env.REACT_APP_BACKEND_URL + `plants?device_id=${deviceId}&plant_id=${plantId}`, 
+        {},
         { headers }
       );
 
       if (response.status === 200 || response.status === 201) {
-        //TODO: handle successful response
+        //refresh page on succesful response
+        window.location.reload();
       }
     } catch (err) {
       console.error('Error occurred:', err);
@@ -104,11 +105,17 @@ const ChangePlantModal = ({ isOpen, onClose }) => {
     setIsLoading(false);
   };
 
+  //Set selected plant with usestate
+  const selectPlant = (id) => {
+    setPlantId(id);
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent p="5" bgColor={'white'} color="fontColor">
-        <ModalHeader>Escoje tu especie de planta</ModalHeader>
+        <ModalHeader>Escoge tu especie de planta</ModalHeader>
+        <ModalCloseButton />
         <ModalBody color="fontColor">
           <VStack mb="10">
             <InputGroup>
@@ -118,45 +125,26 @@ const ChangePlantModal = ({ isOpen, onClose }) => {
                 border="2px solid"
                 borderColor={'blackAlpha.300'}
                 _hover={{ border: '2px solid blackAlpha.800' }}
-                bg="white" // Set background color
-                borderRadius="lg" // Apply border radius
-                pl="40px" // Add padding for icon
+                bg="white" 
+                borderRadius="lg" 
+                pl="40px" 
               />
               <InputLeftElement pointerEvents="none" ml="2">
                 <GoSearch style={{ width: '20px', height: '20px' }} />
               </InputLeftElement>
             </InputGroup>
             {/* Container of plants */}
-            <Box maxH={"500px"} overflowY={"scroll"} className='scrollable' p="5">
-              {filteredPlantData.map((plant, index) => (
-                <HStack
-                  key={index}
-                  borderRadius="lg"
-                  borderWidth="1px"
-                  borderColor="gray.200"
-                  p="4"
-                  w="300px"
-                  boxShadow="md"
-                  alignItems="center"
-                  mb="4"
-                  spacing={"5"}
-                  bgColor={"white"}
-                >
-                  <Box borderRadius="full" overflow="hidden" w="70px" h="70px">
-                    <Image
-                      src={plant.imageUrl}
-                      alt={plant.commonName}
-                      w="70px" // Fixed width
-                      h="70px" // Fixed height
-                      objectFit="cover" // Ensure the entire image is visible
-                    />
-                  </Box>
-                  <VStack spacing="1" align={"left"}>
-                    <Text fontWeight="bold">{plant.commonName}</Text>
-                    <Text>{plant.scientificName}</Text>
-                  </VStack>
-                </HStack>
-              ))}
+            <Box
+              maxH={'500px'}
+              overflowY={'scroll'}
+              className="scrollable"
+              p="5"
+            >
+              {!isPlantDataLoading && Array.isArray(filteredPlantData) ? (
+                filteredPlantData.map(plant => <PlantCard plant={plant} key={plant.plantId} selectPlant={selectPlant} plantId={plantId}/>)
+              ) : (
+                <Spinner />
+              )}
             </Box>
             ;
             <Button

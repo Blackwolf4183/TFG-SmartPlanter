@@ -59,14 +59,14 @@ const Header = ({onOpenChangePlant}) => {
 
       <HStack>
         {/* Notifications button */}
-        <Tooltip hasArrow label='Cambiar planta' bg='white' borderRadius={"xl"}>
+        <Tooltip hasArrow label='Cambiar planta' bg='white' borderRadius={"xl"} color="black">
           <Button w="50px" h="50px" p="0" bgColor={'white'} colorScheme="gray" _hover={{"bgColor":"rgba(255,255,255,0.6)"}} onClick={onOpenChangePlant}>
             <RiPlantLine style={{ width: '25px', height: '25px', color: 'black' }} />
           </Button>
         </Tooltip>
 
         {/* Logout button */}
-        <Tooltip hasArrow label='Salir de la cuenta' bg='white' borderRadius={"xl"}>
+        <Tooltip hasArrow label='Salir de la cuenta' bg='white' borderRadius={"xl"} color="black">
           <Button
             w="50px"
             h="50px"

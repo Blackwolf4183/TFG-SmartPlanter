@@ -27,8 +27,8 @@ const WateringBento = ({ colSpan, rowSpan }) => {
   const [deviceId, setDeviceId] = useState(null)
   const [irrigationType, setIrrigationType] = useState("NONE")
   const [irrigationAmount, setIrrigationAmount] = useState(null)
-  const [threshold, setThreshold] = useState(null)
-  const [everyHours, setEveryHours] = useState(null)
+  const [threshold, setThreshold] = useState(30)
+  const [everyHours, setEveryHours] = useState(5)
 
   const updateIrrigationAmount = (val) => {
     setIrrigationAmount(val)
@@ -48,8 +48,8 @@ const WateringBento = ({ colSpan, rowSpan }) => {
     if(!loading && data && data.irrigationType && (data.everyHours || data.threshold) && data.irrigationAmount){
       setIrrigationType(data.irrigationType)
       setIrrigationAmount(data.irrigationAmount)
-      setThreshold(data.threshold)
-      setEveryHours(data.everyHours)
+      if(data.threshold) setThreshold(data.threshold)
+      if(data.everyHours) setEveryHours(data.everyHours)
     }
   }, [data, loading])
 
