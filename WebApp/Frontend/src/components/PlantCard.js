@@ -29,7 +29,7 @@ const PlantCard = ({ plant, selectPlant, plantId }) => {
       onClick={() => {selectPlant(plant.plantId)}}
     >
       <Box borderRadius="full" overflow="hidden" w="70px" h="70px" >
-        {isLoading && <Spinner size="md" m="0 auto"/>}
+        {isLoading && <Spinner size="md" mt="10px" ml="10px"/>}
         <Image
           src={plant.imageUrl}
           alt={plant.commonName}

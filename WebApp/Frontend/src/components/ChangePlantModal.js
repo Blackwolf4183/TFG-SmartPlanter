@@ -30,12 +30,13 @@ const ChangePlantModal = ({ isOpen, onClose }) => {
 
   //Request for plants data
   const [url, setUrl] = useState('');
-  const { data, loading, error } = useAxios(url);
+  const { data, loading } = useAxios(url);
   const [deviceId, setDeviceId] = useState(null);
   const [isPlantDataLoading, setIsPlantDataLoading] = useState(true);
 
   const [filteredPlantData, setFilteredPlantData] = useState([]);
 
+  //Get deviceId and set url
   useEffect(() => {
     setTimeout(() => {
       //Get deviceId from cookies and make request by setting url with device_id param
@@ -57,8 +58,20 @@ const ChangePlantModal = ({ isOpen, onClose }) => {
   }, [data, loading]);
 
   const handleSubmitPlant = async () => {
+
+    if(plantId === null){
+      requestResultToast({
+        title: "No has seleccionado una planta",
+        status: 'warning',
+        isClosable: true,
+      });
+
+      return;
+    }
+
     try {
       setIsLoading(true);
+
       // Get the JWT from the '_auth' cookie
       const jwt = Cookies.get('_auth');
 
@@ -74,32 +87,23 @@ const ChangePlantModal = ({ isOpen, onClose }) => {
       );
 
       if (response.status === 200 || response.status === 201) {
-        //refresh page on succesful response
-        window.location.reload();
-      }
-    } catch (err) {
-      console.error('Error occurred:', err);
-      if (err && err instanceof AxiosError) {
-        if (err.response?.data?.message)
-          requestResultToast({
-            title: err.response.data.message,
-            status: 'error',
-            isClosable: true,
-          });
-        else {
-          requestResultToast({
-            title: err.message,
-            status: 'error',
-            isClosable: true,
-          });
-        }
-      } else if (err && err instanceof Error) {
+        //Show successful change
         requestResultToast({
-          title: err.message,
-          status: 'error',
+          title: "Se ha cambiado la planta exitósamente",
+          status: 'success',
           isClosable: true,
         });
+        setTimeout(() => {
+          //refresh page on succesful response
+          window.location.reload();
+        }, 1000);
       }
+    } catch (err) {
+      requestResultToast({
+        title: "Ha ocurrido un error intentando seleccionar tu planta",
+        status: 'error',
+        isClosable: true,
+      });
     }
 
     setIsLoading(false);
@@ -108,6 +112,18 @@ const ChangePlantModal = ({ isOpen, onClose }) => {
   //Set selected plant with usestate
   const selectPlant = (id) => {
     setPlantId(id);
+  }
+
+  //Update search when something is being written on input
+  const handleSearchChange = (event) => {
+    if(data){
+      const filteredResults = data.filter(plant =>
+        plant.commonName.toLowerCase().includes(event.target.value) ||
+        plant.scientificName.toLowerCase().includes(event.target.value)
+      );
+
+      setFilteredPlantData(filteredResults);
+    }
   }
 
   return (
@@ -128,6 +144,7 @@ const ChangePlantModal = ({ isOpen, onClose }) => {
                 bg="white" 
                 borderRadius="lg" 
                 pl="40px" 
+                onChange={handleSearchChange}
               />
               <InputLeftElement pointerEvents="none" ml="2">
                 <GoSearch style={{ width: '20px', height: '20px' }} />

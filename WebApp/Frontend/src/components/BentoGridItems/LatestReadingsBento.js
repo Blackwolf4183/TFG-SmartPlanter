@@ -9,6 +9,9 @@ import {
   Center,
   useToast,
   Skeleton,
+  Spinner,
+  Image,
+  SkeletonCircle
 } from '@chakra-ui/react';
 import { FaThermometerHalf, FaRegSun } from 'react-icons/fa';
 import { RiPlantLine } from "react-icons/ri";
@@ -17,19 +20,35 @@ import Cookies from 'js-cookie';
 
 const LatestReadingsBento = ({ colSpan, rowSpan }) => {
   const [lastestDataUrl, setLastestDataUrl] = useState('');
+  const [plantInfoUrl, setPlantInfoUrl] = useState('');
+
+  //Latest readings variables
   const [humidity, setHumidity] = useState('-');
   const [temperature, setTemperature] = useState('-');
   const [lightIntensity, setLightIntensity] = useState('-');
   const [lastUpdated, setLastUpdated] = useState('');
+
+  //Plant info variables
+  const [plantInfo, setPlantInfo] = useState(null)
+
+  //DeviceId
   const [deviceId, setDeviceId] = useState(null)
 
+  //Loading state variables
   const [componentLoading, setComponentLoading] = useState(true)
+  const [plantInfoComponentLoading, setPlantComponentInfoLoading] = useState(true)
 
   const {
     data: lastestPlantData,
     loading: lastestPlantDataLoading,
     error: lastestPlantDataError,
   } = useAxios(lastestDataUrl);
+
+  const {
+    data: plantInfoData,
+    loading: plantInfoLoading,
+    error: plantInfoError,
+  } = useAxios(plantInfoUrl);
 
   const requestResultToast = useToast();
 
@@ -43,6 +62,21 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
       })
     }
   }, [lastestPlantDataError])
+
+  useEffect(() => {
+    if(plantInfoError && deviceId){
+      //403 should not be logged as an error since it just means the user has to select a plant
+      if(plantInfoError.response?.status !== 403){
+        requestResultToast({
+          title: 'Algo ha fallado intentando recuperar información de tu planta.',
+          status: 'error',
+          isClosable: true,
+        })
+      }else{
+        setPlantComponentInfoLoading(false);
+      }
+    }
+  }, [plantInfoError])
 
   //Useffect to set latest plant data
   useEffect(() => {
@@ -64,11 +98,7 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
         setLastUpdated(`Actualizado hace ~${differenceInMinutes} min`);
       } else {
         const differenceInHours = Math.round(differenceInMinutes / 60);
-        setLastUpdated(
-          `Actualizado hace ~${differenceInHours} hora${
-            differenceInHours > 1 ? 's' : ''
-          }`
-        );
+        setLastUpdated(`Actualizado hace ~${differenceInHours} hora${differenceInHours > 1 ? 's' : ''}`);
       }
 
       setComponentLoading(false)
@@ -84,6 +114,16 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
     }
   }, [lastestPlantData, lastestPlantDataLoading]);
 
+  //Useffect to set plant info
+  useEffect(() => {
+    if (!plantInfoLoading && plantInfoData?.scientificName && plantInfoData?.commonName){
+        setPlantInfo(plantInfo);
+        setPlantComponentInfoLoading(false);
+    } 
+
+  }, [plantInfoData, plantInfoLoading])
+  
+
   //Useffect to get cookies and make enpoint calls
   useEffect(() => {
     setTimeout(() => {
@@ -98,8 +138,20 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
           'plants/latest-data/?device_id=' +
           deviceId
       );
+
+      setPlantInfoUrl(
+        process.env.REACT_APP_BACKEND_URL +
+          'plants/info/?device_id=' +
+          deviceId
+      );
     }, 250);
   }, []);
+
+  const [isImageLoading, setIsImageLoading] = useState(true);
+
+  const handleImageLoad = () => {
+    setIsImageLoading(false);
+  };
 
   return (
     <GridItem
@@ -119,19 +171,27 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
             overflow="hidden"
             backgroundColor="gray.200"
           >
-            <img
-              src="./plantIllustration.png"
-              alt="dummy plant"
+            {plantInfoComponentLoading && <SkeletonCircle style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>}
+            <Image
+              src={plantInfoData?.imageUrl}
+              alt={plantInfoData?.commonName}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
+              onLoad={handleImageLoad}
+              display={isImageLoading ? 'none' : 'block'}/>
           </Box>
 
-          {/* TODO: falta enlazar la API de perenual */}
+          {/* TODO: cambiar para link a pop up */}
           <VStack align={'left'} spacing="0" pl="2">
-            <Text fontWeight={'500'}>Aloe Vera</Text>
-            <Text fontWeight={'light'} mt="-1">
-              Aloe barbadensis miller
-            </Text>
+          <Skeleton isLoaded={!plantInfoComponentLoading}>
+              <Text fontWeight={'500'} mt="-1">
+                {plantInfoData?.commonName || "Elige una planta"}
+              </Text>
+            </Skeleton>
+            <Skeleton isLoaded={!plantInfoComponentLoading}>
+              <Text fontWeight={'light'} mt="-1" >
+                {plantInfoData?.scientificName || "-"}
+              </Text>
+            </Skeleton>
           </VStack>
 
           <Spacer />

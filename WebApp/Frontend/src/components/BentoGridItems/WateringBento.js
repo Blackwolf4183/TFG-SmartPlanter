@@ -26,7 +26,7 @@ const WateringBento = ({ colSpan, rowSpan }) => {
   const [url, setUrl] = useState('');
   const [deviceId, setDeviceId] = useState(null)
   const [irrigationType, setIrrigationType] = useState("NONE")
-  const [irrigationAmount, setIrrigationAmount] = useState(null)
+  const [irrigationAmount, setIrrigationAmount] = useState(100)
   const [threshold, setThreshold] = useState(30)
   const [everyHours, setEveryHours] = useState(5)
 
@@ -62,7 +62,7 @@ const WateringBento = ({ colSpan, rowSpan }) => {
         isClosable: true,
       })
     }
-  }, [error])
+  }, [error, requestResultToast, deviceId])
   
 
   //Useffect to get cookies and make enpoint calls

@@ -293,7 +293,7 @@ async def get_plant_data(device_id:str , user) -> PlantInfo:
     #Search plant associated with user by deviceId
     deviceplant = supabase.from_("deviceplant").select("*").eq("deviceid", device_id).execute()
     if len(deviceplant.data) == 0: 
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="El usuario no ha escogido una planta aun")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="El usuario no ha escogido una planta aun")
     
     plant_id =deviceplant.data[0]["plantid"] 
 
