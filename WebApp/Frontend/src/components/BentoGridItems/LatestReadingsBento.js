@@ -165,8 +165,8 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
       <VStack w="100%">
         <HStack w="100%">
           <Box
-            w="48px"
-            h="48px"
+            w="50px"
+            h="50px"
             borderRadius="100%"
             overflow="hidden"
             backgroundColor="gray.200"
