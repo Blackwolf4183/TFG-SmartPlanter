@@ -43,6 +43,9 @@ const WaterConsumptionGraphicBento = ({
         historicalData.filter(item => item.timestamp >= oneWeekAgo)
       );
     } else if (event.target.value === 'TODAY') {
+      //Reset to the start of the day 
+      currentDate.setHours(0, 0, 0, 0);
+
       setGraphicsHistoricalData(
         historicalData.filter(item => item.timestamp >= currentDate)
       );
