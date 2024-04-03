@@ -8,10 +8,10 @@ from typing import Annotated,List
 from ..Controllers.securityController import User,get_current_user
 from ..Controllers.plantController import (get_plant_lastest_readings, get_plant_historical_readings, create_plant_irrigation_registry,
                                             get_irrigation_data, get_plant_daily_consumption, create_plant_info_registry, get_plant_data,
-                                            get_plant_list, retrieve_user_plant)
+                                            get_plant_list, retrieve_user_plant, get_plant_advice_data)
 
 from ..Models.IrrigationModel import IrrigationForm, IrrigationData
-from ..Models.PlantInfoModel import PlantInfo
+from ..Models.PlantInfoModel import PlantInfo, PlantAdvice
 
 router = APIRouter()
 
@@ -90,7 +90,17 @@ async def get_plant_info(device_id:str, current_user: Annotated[User, Depends(ge
         return JSONResponse(content={"message": f"HTTP Error {http_exception.status_code}: {http_exception.detail}"}, status_code=http_exception.status_code)
     except Exception as e:
         return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
+@router.get("/advice", response_model=List[PlantAdvice])
+async def get_plant_advice(device_id:str, current_user: Annotated[User, Depends(get_current_user)]) -> List[PlantAdvice]:
+    try:
+        plant_advice = await get_plant_advice_data(device_id, current_user)
+        return plant_advice
+    except HTTPException as http_exception:
+        return JSONResponse(content={"message": f"HTTP Error {http_exception.status_code}: {http_exception.detail}"}, status_code=http_exception.status_code)
+    except Exception as e:
+        return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 @router.get("/info/list", response_model=List[PlantInfo])
 async def get_plant_list_info(current_user: Annotated[User, Depends(get_current_user)]) -> List[PlantInfo]:
     try:

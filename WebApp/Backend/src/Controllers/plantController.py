@@ -8,7 +8,7 @@ from ..database import create_supabase_client
 from ..Controllers.deviceController import device_exists, device_belongs_to_user
 
 from ..Models.IrrigationModel import IrrigationForm, IrrigationData
-from ..Models.PlantInfoModel import PlantInfo
+from ..Models.PlantInfoModel import PlantInfo, PlantAdvice
 
 #Initialize supabase client
 supabase = create_supabase_client()
@@ -357,3 +357,38 @@ async def retrieve_user_plant(device_id:str , user) -> int:
         return None
     else:
         return deviceplant.data[0]["plantid"]
+    
+
+async def get_plant_advice_data(device_id:str , user) -> List[PlantAdvice]:
+    #Check if device exists
+    if not device_exists("id", device_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispositivo no encontrado")
+    
+    #Check if device belongs to user
+    if not device_belongs_to_user(device_id, user.id):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="El usuario no tiene acceso al dispositivo")
+    
+    #Get plantId for user
+    deviceplant = supabase.from_("deviceplant").select("*").eq("deviceid", device_id).execute()
+    plantId = deviceplant.data[0]["plantid"]
+
+    #Get list of guides associated with plantId
+    plantguide = supabase.from_("plantguide").select("*").eq("plantid", plantId).execute()
+
+    plant_advice_list = []
+    
+    for guide in plantguide.data:
+        print(guide)
+        plant_advice_list.append(
+            PlantAdvice(
+                id=guide["id"],
+                plantId=guide["plantid"],
+                guideType=guide["guidetype"],
+                description=guide["description"]
+            )
+        )
+
+    return plant_advice_list
+
+    
+

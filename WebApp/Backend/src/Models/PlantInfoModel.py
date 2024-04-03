@@ -12,6 +12,10 @@ class PlantInfo(BaseModel):
     careLevel: str
     maxTemp: Optional[int] = None
     minTemp: Optional[int] = None
-    #TODO: falta poner consejos y otros datos
-    
+
+class PlantAdvice(BaseModel):
+    id: int
+    plantId: int
+    guideType: str
+    description: str    
 

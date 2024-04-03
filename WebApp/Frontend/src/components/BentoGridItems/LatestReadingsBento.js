@@ -9,7 +9,6 @@ import {
   Center,
   useToast,
   Skeleton,
-  Spinner,
   Image,
   SkeletonCircle
 } from '@chakra-ui/react';
@@ -180,7 +179,6 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
               display={isImageLoading ? 'none' : 'block'}/>
           </Box>
 
-          {/* TODO: cambiar para link a pop up */}
           <VStack align={'left'} spacing="0" pl="2">
           <Skeleton isLoaded={!plantInfoComponentLoading}>
               <Text fontWeight={'500'} mt="-1">

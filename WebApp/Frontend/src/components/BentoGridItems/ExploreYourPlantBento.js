@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
-import { GridItem, Skeleton, Text, Box } from '@chakra-ui/react';
+import {
+  GridItem,
+  Skeleton,
+  Text,
+  Box,
+  SkeletonCircle,
+  Image,
+  VStack,
+} from '@chakra-ui/react';
 import useAxios from '../../functions/axiosHook';
 import Cookies from 'js-cookie';
 
@@ -20,6 +28,12 @@ const ExploreYourPlantBento = ({ colSpan, rowSpan }) => {
     error: plantInfoError,
   } = useAxios(plantInfoUrl);
 
+  const [isImageLoading, setIsImageLoading] = useState(true);
+
+  const handleImageLoad = () => {
+    setIsImageLoading(false);
+  };
+
   //Useffect to get cookies and make enpoint calls
   useEffect(() => {
     setTimeout(() => {
@@ -34,13 +48,13 @@ const ExploreYourPlantBento = ({ colSpan, rowSpan }) => {
   }, []);
 
   useEffect(() => {
-    if(plantInfoError){
+    if (plantInfoError) {
       //403 should not be logged as an error since it just means the user has to select a plant
-      if(plantInfoError.response?.status === 403){
+      if (plantInfoError.response?.status === 403) {
         setPlantComponentInfoLoading(false);
       }
     }
-  }, [plantInfoError])
+  }, [plantInfoError]);
 
   //Useffect to set plant info
   useEffect(() => {
@@ -55,19 +69,45 @@ const ExploreYourPlantBento = ({ colSpan, rowSpan }) => {
       colSpan={colSpan}
       rowSpan={rowSpan}
       bg="card"
-      h="272px"
+      h="408px"
       borderRadius={'10'}
       p="30px"
     >
       <Text fontSize={'xl'}>Conoce tu planta</Text>
 
-      <Box maxH={'190px'} overflowY={'scroll'} className="scrollable" pr="2">
-        <Skeleton isLoaded={!plantInfoComponentLoading} mt="2.5">
-          <Text>
-            {plantInfo?.plantDescription || 'No se ha encontrado descripción para tu planta'}
-          </Text>
-        </Skeleton>
-      </Box>
+      <VStack>
+        <Box maxH={'190px'} overflowY={'scroll'} className="scrollable" pr="2">
+          <Skeleton isLoaded={!plantInfoComponentLoading} mt="2.5">
+            <Text>
+              {plantInfo?.plantDescription ||
+                'No se ha encontrado descripción para tu planta'}
+            </Text>
+          </Skeleton>
+        </Box>
+
+        <Box
+          w="150px"
+          h="150px"
+          borderRadius="20px"
+          overflow="hidden"
+          backgroundColor="gray.200"
+          mt="5"
+          userSelect={"none"}
+        >
+          {plantInfoComponentLoading && (
+            <SkeletonCircle
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          )}
+          <Image
+            src={plantInfoData?.imageUrl}
+            alt={plantInfoData?.commonName}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onLoad={handleImageLoad}
+            display={isImageLoading ? 'none' : 'block'}
+          />
+        </Box>
+      </VStack>
     </GridItem>
   );
 };
