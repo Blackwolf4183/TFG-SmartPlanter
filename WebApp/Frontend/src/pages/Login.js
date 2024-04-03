@@ -299,7 +299,7 @@ const Login = () => {
             onClick={handleRegisterClick}
             cursor="pointer"
           >
-            Registrate
+            {isLoginPage ? "Registrate" : "Inicia sesión"}
           </Text>
         </VStack>
       </HStack>
