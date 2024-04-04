@@ -116,3 +116,44 @@ async def link_user_to_device(client_id:str, device_password:str, user) -> str:
         raise HTTPException(status_code=500, detail="El dispositivo no ha podido ser enlazado con el usuario")
     
     return device.data[0]["id"]
+
+async def change_user_device(client_id:str, device_password:str, user) -> str:
+    """
+    Checks device password and id and if correct, updates the row in DB linking the user to an existing device
+
+    Args:
+        client_id (str):
+        device_password (str): password for device  
+        user (User): 
+
+    Raises:
+        HTTPException: status_code=400 detail="No hay un dispositivo registrado con tal id"
+        HTTPException: status_code=401 detail="Contraseña incorrecta para el dispositivo"
+        HTTPException: status_code=400 detail="El usuario ya tiene un dispositivo enlazado"
+        HTTPException: status_code=500 detail="El dispositivo no ha podido ser enlazado con el usuario"
+    """
+    #Password and device validation
+    device = supabase.from_("device").select("*").eq("clientid", client_id).execute()
+
+    if(len(device.data) == 0):
+        #No device registered with that id
+        raise HTTPException(status_code=400, detail="No hay un dispositivo registrado con tal id")
+    
+    #Check if password is incorrect
+    if(not verify_password(device_password, device.data[0]["password"])):
+        raise HTTPException(status_code=401, detail="Contraseña incorrecta para el dispositivo")
+    
+    #Check if user doesn't have any device linked yet
+    exiting_userdevice = supabase.from_("userdevice").select("*").eq("userid", user.id).execute()
+    if(len(exiting_userdevice.data) == 0):
+        raise HTTPException(status_code=400, detail="El usuario no tiene aun ningún dispositivo enlazado")
+
+    #Passed filters, now we can insert the (user, device) pair in db
+    user_device = supabase.from_("userdevice")\
+            .update({"deviceid": device.data[0]["id"]}).eq("userid",user.id)\
+            .execute()
+    
+    if not user_device:  # Check if device data exists
+        raise HTTPException(status_code=500, detail="El dispositivo no ha podido ser enlazado con el usuario")
+    
+    return device.data[0]["id"]

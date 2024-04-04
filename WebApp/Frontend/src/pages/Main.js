@@ -16,10 +16,12 @@ import { useSignOut } from 'react-auth-kit';
 import { useDisclosure } from '@chakra-ui/react';
 import GraphicsBentoWrapper from '../components/GraphicsBentoWrapper';
 import ChangePlantModal from '../components/ChangePlantModal';
+import ChangeDeviceModal from '../components/ChangeDeviceModal';
 
 const Main = () => {
   //Log to device modal
   const { isOpen: isOpenLogToDevice, onOpen: onOpenLogToDevice, onClose: onCloseLogToDevice} = useDisclosure();
+  const { isOpen: isOpenChangeDevice, onOpen: onOpenChangeDevice, onClose: onCloseChangeDevice} = useDisclosure();
   const { isOpen: isOpenChangePlant, onOpen: onOpenChangePlant, onClose: onCloseChangePlant} = useDisclosure();
 
   const signOut = useSignOut();
@@ -44,13 +46,15 @@ const Main = () => {
 
   return (
     <>
-      {/* Modal for device details */}
+      {/* Modals for device and plant details */}
       <LogToDeviceModal isOpen={isOpenLogToDevice} onClose={onCloseLogToDevice} />
       <ChangePlantModal isOpen={isOpenChangePlant} onClose={onCloseChangePlant}/>
+      <ChangeDeviceModal isOpen={isOpenChangeDevice} onClose={onCloseChangeDevice}/>
+
       <Center >
         <VStack w="100%" color="fontColor" mt="10">
           {/* Heading with message, date and buttons */}
-          <Header onOpenChangePlant={onOpenChangePlant}/>
+          <Header onOpenChangePlant={onOpenChangePlant} onOpenChangeDevice={onOpenChangeDevice}/>
 
           {/* Bento grid */}
           <Grid

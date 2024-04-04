@@ -10,13 +10,14 @@ import {
   Input,
   VStack,
   HStack,
+  ModalCloseButton,
   useToast,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import Cookies from 'js-cookie';
 
-const LogToDeviceModal = ({ isOpen, onClose }) => {
+const ChangeDeviceModal = ({ isOpen, onClose }) => {
   const requestResultToast = useToast();
 
   const [clientId, setClientId] = useState('');
@@ -43,8 +44,8 @@ const LogToDeviceModal = ({ isOpen, onClose }) => {
         Authorization: `Bearer ${jwt}`,
       };
 
-      const response = await axios.post(
-        process.env.REACT_APP_BACKEND_URL + 'devices/link',
+      const response = await axios.patch(
+        process.env.REACT_APP_BACKEND_URL + 'devices/',
         {
           client_id: clientId,
           device_password: password,
@@ -97,7 +98,8 @@ const LogToDeviceModal = ({ isOpen, onClose }) => {
     <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false}>
       <ModalOverlay />
       <ModalContent p="5" bgColor={'white'} color="fontColor">
-        <ModalHeader>Accede a tu dispositivo</ModalHeader>
+        <ModalHeader>Cambia tu dispositivo</ModalHeader>
+        <ModalCloseButton />
         <ModalBody color="fontColor">
           <HStack spacing="10">
             <VStack mb="10" align={'left'}>
@@ -144,4 +146,4 @@ const LogToDeviceModal = ({ isOpen, onClose }) => {
   );
 };
 
-export default LogToDeviceModal;
+export default ChangeDeviceModal;

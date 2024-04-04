@@ -1,0 +1,7 @@
+id,errormessage,errortime,source,clientid
+15,Error encountered when validating: SoilMoisture,2024-03-03 12:25:36.900394,SmartPlanter1 - Validation,SmartPlanter1
+14,Error encountered when validating: SoilMoisture,2024-03-03 12:25:23.760342,SmartPlanter1 - Validation,SmartPlanter1
+12,DHT measurement error.,2024-01-24 17:52:01.044527,SmartPlanter1 - ESP32,SmartPlanter1
+13,DHT measurement error.,2024-01-26 13:21:04.13368,SmartPlanter1 - ESP32,SmartPlanter1
+16,Error encountered when validating: SoilMoisture,2024-03-23 17:29:01.503419,SmartPlanter1 - Validation,SmartPlanter1
+17,Error encountered when validating: SoilMoisture,2024-03-23 17:31:36.975584,SmartPlanter1 - Validation,SmartPlanter1

@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
+  Button,
   GridItem,
   HStack,
+  Spacer,
   Text,
   VStack,
   useToast,
@@ -11,6 +13,7 @@ import useAxios from '../../functions/axiosHook';
 import ErrorsSkeleton from '../skeletons/ErrorsSkeleton';
 import Cookies from 'js-cookie';
 import { formatDate } from '../../functions/utility.js';
+import axios from 'axios';
 
 const ErrorBento = ({ colSpan, rowSpan }) => {
   const [url, setUrl] = useState('');
@@ -46,6 +49,44 @@ const ErrorBento = ({ colSpan, rowSpan }) => {
     }
   }, [error]);
 
+  const [isDeleteErrorButtonLoading, setIsDeleteErrorButtonLoading] = useState(false)
+
+  const handleDeleteErrors = () => {
+    setIsDeleteErrorButtonLoading(true);
+  
+    // Get the JWT from the '_auth' cookie
+    const jwt = Cookies.get('_auth');
+  
+    // Set up the Axios headers with the JWT as a bearer token
+    const headers = {
+      Authorization: `Bearer ${jwt}`,
+    };
+
+    axios.delete(process.env.REACT_APP_BACKEND_URL + 'errors/?device_id=' + deviceId, { headers })
+      .then(() => {
+        requestResultToast({
+          title: 'Se han eliminado correctamente los errores',
+          status: 'success',
+          isClosable: true,
+        })
+  
+        setTimeout(() => {
+          window.location.reload();
+        }, 250);
+      })
+      .catch(() => {
+        requestResultToast({
+          title: 'Error al realizar la petición',
+          status: 'error',
+          isClosable: true,
+        })
+      })
+      .finally(() => {
+        setIsDeleteErrorButtonLoading(false);
+      })
+  }
+  
+
   return (
     <GridItem
       colSpan={colSpan}
@@ -55,7 +96,11 @@ const ErrorBento = ({ colSpan, rowSpan }) => {
       borderRadius={'10'}
       p="30px"
     >
-      <Text fontSize={'xl'}>Errores</Text>
+      <HStack w="100%">
+        <Text fontSize={'xl'}>Errores</Text>
+        <Spacer/>
+        <Button isLoading={isDeleteErrorButtonLoading} colorScheme='red' size={"sm"} onClick={handleDeleteErrors}>Limpiar errores</Button>
+      </HStack>
 
       <Box
         overflowY="auto"

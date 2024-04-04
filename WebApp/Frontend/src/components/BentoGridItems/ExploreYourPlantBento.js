@@ -75,8 +75,17 @@ const ExploreYourPlantBento = ({ colSpan, rowSpan }) => {
     >
       <Text fontSize={'xl'}>Conoce tu planta</Text>
 
+      <Box
+        overflowY="auto"
+        overflowX={'hidden'}
+        maxHeight="310px"
+        mt="2"
+        pb="1"
+        className="scrollable"
+      >
+
       <VStack>
-        <Box maxH={'190px'} overflowY={'scroll'} className="scrollable" pr="2">
+        <Box  pr="2">
           <Skeleton isLoaded={!plantInfoComponentLoading} mt="2.5">
             <Text>
               {plantInfo?.plantDescription ||
@@ -108,6 +117,7 @@ const ExploreYourPlantBento = ({ colSpan, rowSpan }) => {
           />
         </Box>
       </VStack>
+      </Box>
     </GridItem>
   );
 };
