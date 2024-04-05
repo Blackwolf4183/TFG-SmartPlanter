@@ -22,7 +22,7 @@ function useAxios(url) {
         const response = await axios.get(url, { headers });
         setData(response.data);
         /* TODO: remove */
-        console.log(response.data)
+        //console.log(response.data)
       } catch (err) {
         setError(err);
       } finally {

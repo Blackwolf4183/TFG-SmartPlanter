@@ -57,6 +57,7 @@ const ChangePlantModal = ({ isOpen, onClose }) => {
     }
   }, [data, loading]);
 
+
   const handleSubmitPlant = async () => {
 
     if(plantId === null){
@@ -93,10 +94,17 @@ const ChangePlantModal = ({ isOpen, onClose }) => {
           status: 'success',
           isClosable: true,
         });
+
         setTimeout(() => {
-          //refresh page on succesful response
-          window.location.reload();
-        }, 1000);
+          
+          requestResultToast({
+            title: "Se ha aplicado un riego adecuado a tu planta, puedes modificarlo en la caja de \"Riego\"",
+            status: 'info',
+            isClosable: true,
+          });
+
+        }, 150);
+
       }
     } catch (err) {
       requestResultToast({

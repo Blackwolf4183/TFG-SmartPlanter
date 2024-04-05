@@ -82,11 +82,14 @@ const AdviceBento = ({ colSpan, rowSpan }) => {
                     h="auto"
                     p="2"
                     w="405px"
-                    boxShadow={'rgba(0, 0, 0, 0.16) 0px 1px 4px;'}
+                    border="2px solid rgba(0,0,0,0.1)"
                     borderRadius={10}
                   > 
                     <VStack align={'left'} spacing="1">
-                      <Text fontSize={'14 px'} fontWeight={'medium'}>{adviceItem.guideType}</Text>
+                      <HStack>
+                        <Text fontSize={'14 px'} fontWeight={'medium'}>{adviceItem.guideType}</Text>
+                        <Box h="2px" w="100%" bgColor={"blackAlpha.100"} borderRadius={"14px"}/>
+                      </HStack>
                       <Text  fontSize={'14px'} >
                         {adviceItem.description}
                       </Text>

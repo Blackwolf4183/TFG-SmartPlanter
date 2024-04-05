@@ -16,6 +16,7 @@ supabase = create_supabase_client()
 IRRIGATION_TYPE_THRESHOLD = "THRESHOLD"
 IRRIGATION_TYPE_PROGRAMMED = "PROGRAMMED"
 IRRIGATION_AMOUNT_MULTIPLIER = 16/1000 #16 ml/s for each millisecond
+IRRIGATION_MAX_AMOUNT_ML = 200
 
 def get_plant_lastest_readings(device_id: str, user):
     """
@@ -237,7 +238,7 @@ def plant_exists(value: str) -> bool:
 
 async def create_plant_info_registry(device_id:str, plant_id:str , user):
     """
-    Creates association in DB between available plants in DB and device 
+    Creates association in DB between available plants in DB and device, if device has plant associated, then just update the plant
 
     Args:
         device_id (str): device_id
@@ -266,6 +267,52 @@ async def create_plant_info_registry(device_id:str, plant_id:str , user):
 
     #Create new registry
     supabase.from_("deviceplant").insert({"deviceid": device_id, "plantid": plant_id}).execute()
+
+    #Retrieve type of watering for plant and depending on it update the watering parameters
+    #Get plant info
+    plantinfo = supabase.from_("plantinfo").select("*").eq("id", plant_id).execute()
+
+    #Get watering type
+    watering_type = plantinfo.data[0]["watering"]
+
+    if watering_type == "INFREQUENT":
+
+        irrigation_data = IrrigationForm(
+            deviceId=device_id,
+            irrigationType=IRRIGATION_TYPE_PROGRAMMED,
+            threshold= None,
+            everyHours= 12,
+            irrigationAmount= IRRIGATION_MAX_AMOUNT_ML/8)
+        
+        await create_plant_irrigation_registry(irrigation_data,user)
+
+    elif watering_type == "MODERATE":
+        irrigation_data = IrrigationForm(
+            deviceId=device_id,
+            irrigationType=IRRIGATION_TYPE_PROGRAMMED,
+            threshold= None,
+            everyHours= 12,
+            irrigationAmount= IRRIGATION_MAX_AMOUNT_ML/4)
+        
+        await create_plant_irrigation_registry(irrigation_data,user)
+    elif watering_type == "REGULAR":
+        irrigation_data = IrrigationForm(
+            deviceId=device_id,
+            irrigationType=IRRIGATION_TYPE_PROGRAMMED,
+            threshold= None,
+            everyHours= 6,
+            irrigationAmount= IRRIGATION_MAX_AMOUNT_ML/4)
+        
+        await create_plant_irrigation_registry(irrigation_data,user)
+    elif watering_type == "FREQUENT":
+        irrigation_data = IrrigationForm(
+            deviceId=device_id,
+            irrigationType=IRRIGATION_TYPE_PROGRAMMED,
+            threshold= None,
+            everyHours= 6,
+            irrigationAmount= IRRIGATION_MAX_AMOUNT_ML/2)
+        
+        await create_plant_irrigation_registry(irrigation_data,user)
 
 
 async def get_plant_data(device_id:str , user) -> PlantInfo:

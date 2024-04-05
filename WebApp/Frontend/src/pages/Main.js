@@ -44,12 +44,19 @@ const Main = () => {
     }, 250);
   }, []);
 
+  const handleCloseChangePlantModal = () => {
+    onCloseChangePlant();
+
+    //refresh page on succesful response
+    window.location.reload();
+  }
+
   return (
     <>
       {/* Modals for device and plant details */}
       <LogToDeviceModal isOpen={isOpenLogToDevice} onClose={onCloseLogToDevice} />
-      <ChangePlantModal isOpen={isOpenChangePlant} onClose={onCloseChangePlant}/>
       <ChangeDeviceModal isOpen={isOpenChangeDevice} onClose={onCloseChangeDevice}/>
+      <ChangePlantModal isOpen={isOpenChangePlant} onClose={handleCloseChangePlantModal}/>
 
       <Center >
         <VStack w="100%" color="fontColor" mt="10">
