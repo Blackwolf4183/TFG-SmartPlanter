@@ -3,7 +3,6 @@ from fastapi import  HTTPException, Form, status
 from fastapi import Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-import os
 from typing import Annotated
 
 from ..Controllers.deviceController import create_device

@@ -10,7 +10,6 @@ from typing import Annotated
 
 router = APIRouter()
 
-#TODO: de momento lo dejamos abierto el endpoint, pero debería usar una API key para poder acceder de forma segura
 @router.get("/irrigate")
 async def get_should_irrigate_plant(client_id: str, soil_moisture: int):
     try:
