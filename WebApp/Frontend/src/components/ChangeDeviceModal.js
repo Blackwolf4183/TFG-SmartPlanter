@@ -62,7 +62,7 @@ const ChangeDeviceModal = ({ isOpen, onClose }) => {
         // Set the updated cookie
         Cookies.set('_auth_state', JSON.stringify(userAuthDataObject));
 
-        Cookies.remove('_auth_state')
+        Cookies.remove('_auth_state',{expires:"Session"})
 
         // Refresh the page
         window.location.reload();
