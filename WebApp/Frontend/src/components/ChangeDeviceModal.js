@@ -56,15 +56,15 @@ const ChangeDeviceModal = ({ isOpen, onClose }) => {
       if (response.status === 200 || response.status === 201) {
         // Decode and update the _auth_state cookie
         const userAuthDataString = Cookies.get('_auth_state');
-        let userAuthDataObject = userAuthDataString ? JSON.parse(userAuthDataString) : {}; // Parse existing data or initialize an empty object
+        let userAuthDataObject = userAuthDataString ? JSON.parse(decodeURIComponent(userAuthDataString)) : {}; // Parse existing data or initialize an empty object
         userAuthDataObject.deviceId = response.data?.deviceId; // Update deviceId with response from server
-        
-        // Set the updated cookie
-        Cookies.set('_auth_state', JSON.stringify(userAuthDataObject));
-
+    
+        // Convert the object back to a string and set the updated cookie
+        document.cookie = '_auth_state=' + encodeURIComponent(JSON.stringify(userAuthDataObject)) + '; path=/'; // Set the path as per your requirement
+    
         // Refresh the page
         window.location.reload();
-      }
+    }
     } catch (err) {
       console.error('Error occurred:', err);
       if (err && err instanceof AxiosError) {
