@@ -32,7 +32,7 @@ const AverageIntake = ({ colSpan, rowSpan }) => {
         isClosable: true,
       })
     }
-  }, [error])
+  }, [error,deviceId,requestResultToast])
 
   //Useffect to set consumption 
   useEffect(() => {

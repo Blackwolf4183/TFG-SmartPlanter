@@ -27,8 +27,7 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
   const [lightIntensity, setLightIntensity] = useState('-');
   const [lastUpdated, setLastUpdated] = useState('');
 
-  //Plant info variables
-  const [plantInfo, setPlantInfo] = useState(null)
+
 
   //DeviceId
   const [deviceId, setDeviceId] = useState(null)
@@ -60,7 +59,7 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
         isClosable: true,
       })
     }
-  }, [lastestPlantDataError])
+  }, [lastestPlantDataError,deviceId,requestResultToast])
 
   useEffect(() => {
     if(plantInfoError && deviceId){
@@ -75,7 +74,7 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
         setPlantComponentInfoLoading(false);
       }
     }
-  }, [plantInfoError])
+  }, [plantInfoError,deviceId,requestResultToast])
 
   //Useffect to set latest plant data
   useEffect(() => {
@@ -106,7 +105,7 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
     if (
       !lastestPlantDataLoading &&
       lastestPlantData?.data &&
-      lastestPlantData.data.length == 0
+      lastestPlantData.data.length === 0
     ) {
       setLastUpdated(`No hay datos recientes de tu planta`);
       setComponentLoading(false)
@@ -116,7 +115,6 @@ const LatestReadingsBento = ({ colSpan, rowSpan }) => {
   //Useffect to set plant info
   useEffect(() => {
     if (!plantInfoLoading && plantInfoData?.scientificName && plantInfoData?.commonName){
-        setPlantInfo(plantInfo);
         setPlantComponentInfoLoading(false);
     } 
 

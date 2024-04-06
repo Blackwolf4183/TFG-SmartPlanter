@@ -32,7 +32,7 @@ const GraphicsBentoWrapper = () => {
     }, 250);
   }, []);
 
-  const { data, loading, error } = useAxios(url);
+  const { data, loading } = useAxios(url);
   const [graphicsLoading, setGraphicsLoading] = useState(true);
 
   useEffect(() => {

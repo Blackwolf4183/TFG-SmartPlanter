@@ -15,7 +15,7 @@ import {
   ModalCloseButton,
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import Cookies from 'js-cookie';
 import useAxios from '../functions/axiosHook';
 import { GoSearch } from 'react-icons/go';

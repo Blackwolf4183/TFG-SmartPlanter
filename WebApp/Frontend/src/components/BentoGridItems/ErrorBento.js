@@ -47,7 +47,7 @@ const ErrorBento = ({ colSpan, rowSpan }) => {
         isClosable: true,
       });
     }
-  }, [error]);
+  }, [error,deviceId,requestResultToast]);
 
   const [isDeleteErrorButtonLoading, setIsDeleteErrorButtonLoading] = useState(false)
 

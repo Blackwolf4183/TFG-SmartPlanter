@@ -47,7 +47,7 @@ const AdviceBento = ({ colSpan, rowSpan }) => {
         isClosable: true,
       });
     }
-  }, [error]);
+  }, [error,deviceId,requestResultToast]);
 
   return (
     <GridItem

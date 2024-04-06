@@ -24,10 +24,10 @@ const colors = {
     lightFontColor:"rgba(87,104,95,0.47)"
 };
 
-const fonts = {
-  heading:'Fredoka',
-  body:'Fredoka'
-};
+// const fonts = {
+//   heading:'Fredoka',
+//   body:'Fredoka'
+// };
 
 const customTheme = extendTheme({ styles,config,colors });
 
