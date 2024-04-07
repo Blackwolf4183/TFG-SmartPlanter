@@ -53,13 +53,8 @@ const LogToDeviceModal = ({ isOpen, onClose }) => {
       );
 
       if (response.status === 200 || response.status === 201) {
-        // Decode and update the _auth_state cookie
-        const userAuthDataString = Cookies.get('_auth_state');
-        let userAuthDataObject = userAuthDataString ? JSON.parse(userAuthDataString) : {}; // Parse existing data or initialize an empty object
-        userAuthDataObject.deviceId = response.data?.deviceId; // Update deviceId with response from server
-        
         // Set the updated cookie
-        Cookies.set('_auth_state', JSON.stringify(userAuthDataObject));
+        Cookies.set('deviceId', response.data?.deviceId);
 
         // Refresh the page
         window.location.reload();

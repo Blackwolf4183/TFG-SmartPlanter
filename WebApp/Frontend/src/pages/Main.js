@@ -30,19 +30,16 @@ const Main = () => {
   useEffect(() => {
     //Artificial timeout to give the cookies time to be set
     setTimeout(() => {
-      const userAuthDataString = Cookies.get('_auth_state');
+      const deviceId = Cookies.get('deviceId');
 
-      if(!userAuthDataString) signOut();
-
-      const userAuthDataObject = JSON.parse(userAuthDataString)
-      
-      //If no deviceId set in cookies then we ask the user to pair a device4
-      if (userAuthDataObject.deviceId === undefined || userAuthDataObject.deviceId === null) {
+      //If no deviceId set in cookies then we ask the user to pair a device
+      if (deviceId === undefined || deviceId === null || deviceId === 'null') {
         //Prompt user with screen to register or log plant
         onOpenLogToDevice();
       }
-    }, 250);
+    }, 500);
   }, []);
+
 
   const handleCloseChangePlantModal = () => {
     onCloseChangePlant();

@@ -17,6 +17,7 @@ import { useSignIn } from 'react-auth-kit';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import qs from 'qs';
+import Cookies from 'js-cookie';
 
 const Login = () => {
   const [isLoginPage, setIsLoginPage] = useState(true);
@@ -102,10 +103,12 @@ const Login = () => {
                       expiresIn: 120,
                       tokenType: 'Bearer',
                       authState: {
-                        username: sub,
-                        deviceId: deviceID,
+                        username: sub
                       },
                     });
+
+                    //Set deviceId cookie
+                    Cookies.set('deviceId', deviceID)
 
                     //redirect to main page
                     navigate('/', { replace: true });

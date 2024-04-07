@@ -25,10 +25,11 @@ const AdviceBento = ({ colSpan, rowSpan }) => {
   useEffect(() => {
     setTimeout(() => {
       //Get deviceId from cookies and make request by setting url with device_id param
-      const userAuthDataString = Cookies.get('_auth_state');
-      const { deviceId } = JSON.parse(userAuthDataString);
+      const deviceId = Cookies.get('deviceId');
 
       setDeviceId(deviceId);
+
+      if (deviceId === undefined || deviceId === null || deviceId === 'null') return
 
       setUrl(
         process.env.REACT_APP_BACKEND_URL + 'plants/advice?device_id=' + deviceId
