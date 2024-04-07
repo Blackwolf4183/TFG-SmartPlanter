@@ -11,8 +11,7 @@ import LogToDeviceModal from '../components/LogToDeviceModal';
 
 import Cookies from 'js-cookie';
 
-import { useEffect } from 'react';
-import { useSignOut } from 'react-auth-kit';
+import { useEffect,useState } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
 import GraphicsBentoWrapper from '../components/GraphicsBentoWrapper';
 import ChangePlantModal from '../components/ChangePlantModal';
@@ -23,8 +22,6 @@ const Main = () => {
   const { isOpen: isOpenLogToDevice, onOpen: onOpenLogToDevice, onClose: onCloseLogToDevice} = useDisclosure();
   const { isOpen: isOpenChangeDevice, onOpen: onOpenChangeDevice, onClose: onCloseChangeDevice} = useDisclosure();
   const { isOpen: isOpenChangePlant, onOpen: onOpenChangePlant, onClose: onCloseChangePlant} = useDisclosure();
-
-  const signOut = useSignOut();
 
   //Auth details in cookies
   useEffect(() => {
@@ -40,12 +37,16 @@ const Main = () => {
     }, 500);
   }, []);
 
+  const [hasSelectedPlant, setHasSelectedPlant] = useState(false)
 
   const handleCloseChangePlantModal = () => {
     onCloseChangePlant();
 
-    //refresh page on succesful response
-    window.location.reload();
+    //Reload only if user selected a plant
+    if(hasSelectedPlant){
+      //refresh page on succesful response
+      window.location.reload();
+    }
   }
 
   return (
@@ -53,7 +54,7 @@ const Main = () => {
       {/* Modals for device and plant details */}
       <LogToDeviceModal isOpen={isOpenLogToDevice} onClose={onCloseLogToDevice} />
       <ChangeDeviceModal isOpen={isOpenChangeDevice} onClose={onCloseChangeDevice}/>
-      <ChangePlantModal isOpen={isOpenChangePlant} onClose={handleCloseChangePlantModal}/>
+      <ChangePlantModal isOpen={isOpenChangePlant} onClose={handleCloseChangePlantModal} setHasSelectedPlant={setHasSelectedPlant}/>
 
       <Center >
         <VStack w="100%" color="fontColor" mt="10">

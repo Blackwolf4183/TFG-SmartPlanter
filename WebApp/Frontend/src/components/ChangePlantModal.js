@@ -21,7 +21,7 @@ import useAxios from '../functions/axiosHook';
 import { GoSearch } from 'react-icons/go';
 import PlantCard from './PlantCard';
 
-const ChangePlantModal = ({ isOpen, onClose }) => {
+const ChangePlantModal = ({ isOpen, onClose, setHasSelectedPlant }) => {
   const requestResultToast = useToast();
 
   //Selected plantId
@@ -88,6 +88,9 @@ const ChangePlantModal = ({ isOpen, onClose }) => {
       );
 
       if (response.status === 200 || response.status === 201) {
+
+        setHasSelectedPlant(true);
+
         //Show successful change
         requestResultToast({
           title: "Se ha cambiado la planta exitósamente",
