@@ -1,27 +1,3 @@
-
-/*
- * This is an Arduino-based Azure IoT Hub sample for ESPRESSIF ESP8266 board.
- * It uses our Azure Embedded SDK for C to help interact with Azure IoT.
- * For reference, please visit https://github.com/azure/azure-sdk-for-c.
- *
- * To connect and work with Azure IoT Hub you need an MQTT client, connecting, subscribing
- * and publishing to specific topics to use the messaging features of the hub.
- * Our azure-sdk-for-c is an MQTT client support library, helping to compose and parse the
- * MQTT topic names and messages exchanged with the Azure IoT Hub.
- *
- * This sample performs the following tasks:
- * - Synchronize the device clock with a NTP server;
- * - Initialize our "az_iot_hub_client" (struct for data, part of our azure-sdk-for-c);
- * - Initialize the MQTT client (here we use Nick Oleary's PubSubClient, which also handle the tcp
- * connection and TLS);
- * - Connect the MQTT client (using server-certificate validation, SAS-tokens for client
- * authentication);
- * - Periodically send telemetry data to the Azure IoT Hub.
- *
- * To properly connect to your Azure IoT Hub, please fill the information in the `iot_configs.h`
- * file.
- */
-
 // C99 libraries
 #include <cstdlib>
 #include <stdbool.h>
@@ -36,6 +12,8 @@
 #include <bearssl/bearssl.h>
 #include <bearssl/bearssl_hmac.h>
 #include <libb64/cdecode.h>
+#include <ArduinoJson.h>
+#include <ESP8266HTTPClient.h>
 
 // Azure IoT SDK for C includes
 #include <az_core.h>
@@ -48,6 +26,8 @@
 //Sensors libraries
 #include <DHT.h>
 
+
+#pragma region process defined variables
 // When developing for your own Arduino-based platform,
 // please follow the format '(ard;<platform>)'.
 #define AZURE_SDK_CLIENT_USER_AGENT "c%2F" AZ_SDK_VERSION_STRING "(ard;esp8266)"
@@ -57,9 +37,11 @@
 #define ONE_HOUR_IN_SECS 3600
 #define NTP_SERVERS "pool.ntp.org", "time.nist.gov"
 #define MQTT_PACKET_SIZE 1024
+#pragma endregion process defined variables
+
 #define MIN_ANALOG 0
 #define MAX_ANALOG 1023
-#define MAX_WATERING_TIME 6000 //In milliseconds TODO: adjust 
+#define MAX_WATERING_TIME 12500 //In milliseconds
 #define AIR_VALUE 500//Values used to compare the capacitive soil moisture sensor values
 #define WATER_VALUE 100
 
@@ -79,6 +61,7 @@ static const char* password = IOT_CONFIG_WIFI_PASSWORD;
 static const char* host = IOT_CONFIG_IOTHUB_FQDN;
 static const char* device_id = IOT_CONFIG_DEVICE_ID;
 static const char* device_key = IOT_CONFIG_DEVICE_KEY;
+static const char* server_name = SMARTPLANTER_API;
 static const int port = 8883;
 
 // Memory allocated for the sample's variables and structures.
@@ -94,6 +77,9 @@ static unsigned long next_telemetry_send_time_ms = 0;
 static char telemetry_topic[128];
 static uint8_t telemetry_payload[100];
 static uint32_t telemetry_send_count = 0;
+
+//Https Request
+static X509List cert2((const char*)ca_pem);
 
 // Auxiliary functions
 
@@ -330,6 +316,98 @@ static char* getTelemetryPayload()
   return (char*)telemetry_payload;
 }
 
+static void sendError(String errorMessage)
+{
+  Serial.print(millis());
+  Serial.print(" ESP8266 Sending error . . . ");
+  
+  if (az_result_failed(az_iot_hub_client_telemetry_get_publish_topic(&client, NULL, telemetry_topic, sizeof(telemetry_topic), NULL)))
+  {
+    Serial.println("Failed publishing into topic");
+    return;
+  }
+
+  // Use the function arguments in the JSON data
+  String jsonData = String("{\"ErrorMessage\":\"") + errorMessage + "\"}";
+
+  mqtt_client.publish(telemetry_topic, jsonData.c_str(), false);
+  Serial.println("OK");
+  delay(100);
+}
+
+//Performs a call to the API and returns -1 if the plant should not be watered, else returns a number indicating the number of milliseconds the pump will be active for
+static int getIrrigationInfoFromServer(int soilMoisturePercent)
+{
+  if(WiFi.status()== WL_CONNECTED){
+    WiFiClientSecure client;
+    HTTPClient http;
+
+    initializeTime();
+    client.setTrustAnchors(&cert2);
+
+    String serverPath = String(server_name) + "/esp/irrigate" + "?client_id=" + String(device_id) + "&soil_moisture=" + soilMoisturePercent;
+    
+    Serial.println("address: ");
+    Serial.println(serverPath);
+    // Your Domain name with URL path or IP address with path
+    http.begin(client, "https://tfg-smartplanter.onrender.com/esp/irrigate?client_id=SmartPlanter1&soil_moisture=30");
+    
+    // If you need Node-RED/server authentication, insert user and password below
+    //http.setAuthorization("REPLACE_WITH_SERVER_USERNAME", "REPLACE_WITH_SERVER_PASSWORD");
+    
+    // Send HTTP GET request
+    //TODO: if server takes a bit from sleep then the request times out, make it wait longer
+    int httpResponseCode = http.GET();
+    
+    if (httpResponseCode>0) {
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
+      String payload = http.getString();
+      Serial.println(payload);
+
+      // Create a JSON object
+      StaticJsonDocument<200> doc;
+      
+      // Parse the JSON payload
+      DeserializationError error = deserializeJson(doc, payload);
+      
+      // Check for parsing errors
+      if (error) {
+        Serial.print("deserializeJson() failed: ");
+        Serial.println(error.c_str());
+        sendError("Error when trying to deserialize JSON from API");
+        return -1; // Return -1 to indicate an error
+      }
+
+      // Extract the value of shouldIrrigate
+      bool shouldIrrigate = doc["shouldIrrigate"];
+
+      // If shouldIrrigate is true, return the irrigation amount as an integer
+      if (shouldIrrigate) {
+        // Convert the irrigation amount to an integer
+        float irrigationAmountFloat = doc["irrigationAmount"];
+        int irrigationAmountInt = static_cast<int>(irrigationAmountFloat);
+        return irrigationAmountInt;
+      } else {
+        return 0; // Return 0 if shouldIrrigate is false
+      }
+
+    }
+    else {
+      Serial.print("Error code: ");
+      Serial.println(httpResponseCode);
+      sendError("Error when trying to communicate with API, error code: " + String(httpResponseCode));
+    }
+    // Free resources
+    http.end();
+  }
+  else {
+    Serial.println("WiFi Disconnected");
+  }
+
+  return -1;
+}
+
 static void sendTelemetry(int wateringMilliseconds, int lightLevelValue, int soilMoisturePercentage, float temperature, float humidity)
 {
   Serial.print(millis());
@@ -354,38 +432,21 @@ static void sendTelemetry(int wateringMilliseconds, int lightLevelValue, int soi
   delay(100);
 }
 
-static void sendError(String errorMessage)
-{
-  Serial.print(millis());
-  Serial.print(" ESP8266 Sending error . . . ");
-  
-  if (az_result_failed(az_iot_hub_client_telemetry_get_publish_topic(&client, NULL, telemetry_topic, sizeof(telemetry_topic), NULL)))
-  {
-    Serial.println("Failed publishing into topic");
-    return;
-  }
-
-  // Use the function arguments in the JSON data
-  String jsonData = String("{\"ErrorMessage\":\"") + errorMessage + "\"}";
-
-  mqtt_client.publish(telemetry_topic, jsonData.c_str(), false);
-  Serial.println("OK");
-  delay(100);
-}
-
 
 // Arduino setup and loop main functions.
 DHT dht(DHTPIN, DHTTYPE);
 
+//Variables to collect sensor measurements
 int wateringMilliseconds;
 int lightLevelPercent;
 int soilMoisturePercent;
 float temperature;
 float humidity;
 
+//Main program (this activates each time the esp wakes from deepsleep)
 void setup()
 {
-  digitalWrite(RELAYPIN, LOW); //FIX: prevent flickering of relay on power up
+  digitalWrite(RELAYPIN, LOW); 
 
   pinMode(POWERSOILSENSORPIN, OUTPUT);
   pinMode(POWERPHOTOSENSORPIN, OUTPUT);
@@ -406,20 +467,21 @@ void setup()
 
   while (!Serial) { }
 
-  Serial.println();
-  Serial.println("---------------------------------");
+  Serial.println();Serial.println("---------------------------------");
   Serial.println("ESP wakes up");
   
-  while(!mqtt_client.connected())
-  {
-    // Check if connected, reconnect if needed.
-    establishConnection();
+  //Connect to WiFi
+  WiFi.begin(ssid, password);
+  Serial.println("Connecting");
+  while(WiFi.status() != WL_CONNECTED) {
     delay(500);
+    Serial.print(".");
   }
-
-  // MQTT loop must be called to process Device-to-Cloud and Cloud-to-Device.
-  mqtt_client.loop();
+  Serial.println("");
+  Serial.print("Connected to WiFi network with IP Address: ");
+  Serial.println(WiFi.localIP());
   
+  //Print Button value
   Serial.print("Button value: ");
   Serial.println(buttonVal);
 
@@ -432,7 +494,8 @@ void setup()
     Serial.print("Watering the plant for: ");
     Serial.print(wateringMilliseconds);
     Serial.println(" milliseconds.");
-    //Button manually pushed
+    
+    //Activate the pump for the time supposed to be in the potentiometer
     digitalWrite(RELAYPIN, HIGH);
     delay(wateringMilliseconds); 
     digitalWrite(RELAYPIN, LOW);
@@ -441,7 +504,42 @@ void setup()
   }
   else
   {
-    sendTelemetry(0, lightLevelPercent, soilMoisturePercent, temperature, humidity);
+    //Get watering time from server
+    int wateringTimeAPI = getIrrigationInfoFromServer(soilMoisturePercent);
+
+    Serial.println("WateringTimeAPI: " + String(wateringTimeAPI));
+
+    //Clear variables and connect to mqtt azure
+    client = az_iot_hub_client();
+
+    while(!mqtt_client.connected())
+    {
+      // Check if connected, reconnect if needed.
+      establishConnection();
+      delay(500);
+    }
+
+    // MQTT loop must be called to process Device-to-Cloud and Cloud-to-Device.
+    mqtt_client.loop();
+
+    
+
+    //If wateringTime == -1 then the plant should not be watered, just send the measurement of sensors
+    if(wateringTimeAPI == -1)
+    {
+      sendTelemetry(0, lightLevelPercent, soilMoisturePercent, temperature, humidity);
+    }
+    else
+    {
+      Serial.println("Watering the plant for: " + String(wateringTimeAPI) + " milliseconds");
+      //Activate the pump for the time supposed to be in the potentiometer
+      digitalWrite(RELAYPIN, HIGH);
+      delay(wateringTimeAPI); 
+      digitalWrite(RELAYPIN, LOW);
+
+      sendTelemetry(wateringTimeAPI, lightLevelPercent, soilMoisturePercent, temperature, humidity);
+    }
+
   }
   
   deepSleepESP();
@@ -452,7 +550,7 @@ void deepSleepESP()
   digitalWrite(BUTTONPIN, LOW);
   delay(1000);
 
-  Serial.println("Going to sleep for 10 seconds");
+  Serial.println("Going to sleep 30 minutes");
   //ESP.deepSleep(10e6); //Uncomment this to have the ESP wake up each 10 seconds
   ESP.deepSleep(1800e6); //30 minutes between every wake of the ESP 
   
@@ -532,7 +630,4 @@ int analogReadPotentiometer() {
   return analogRead(ANALOGPIN);
 }
 
-void loop()
-{
-  
-}
+void loop(){}
