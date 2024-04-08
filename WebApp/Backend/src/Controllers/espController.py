@@ -82,6 +82,9 @@ def should_irrigate_plant(client_Id: str, soil_moisture: int) -> ESPIrrigationIn
                                             month=irrigation_time_obj.month, 
                                             day=irrigation_time_obj.day)
 
+        print("Current time is: ")
+        print(current_time)
+
         # Calculate the time difference
         time_difference = irrigation_time_obj - current_time
 
