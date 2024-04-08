@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
+using Microsoft.Azure.Amqp.Framing;
+using Microsoft.Azure.Devices;
 
 namespace ArduinoDataProcessFunction
 {
@@ -110,12 +112,13 @@ namespace ArduinoDataProcessFunction
                             Temperature = arduinoDataJson.Temperature,
                             AirHumidity = arduinoDataJson.AirHumidity,
                             LightLevel = arduinoDataJson.LightLevel,
-                            IrrigationAmount = arduinoDataJson.IrrigationTime, //TODO: calculate aproximate amount of water in time
+                            IrrigationAmount = arduinoDataJson.IrrigationTime, 
                             TimeStamp = centralEuropeTime,
                             ClientId = clientId
                         };
 
                         await supabase.From<ArduinoDataDB>().Insert(arduinoDataDBModel);
+
                     }
 
                 }
