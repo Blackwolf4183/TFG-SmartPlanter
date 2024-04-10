@@ -1,3 +1,5 @@
+#pragma region Libraries
+
 // C99 libraries
 #include <cstdlib>
 #include <stdbool.h>
@@ -26,6 +28,7 @@
 //Sensors libraries
 #include <DHT.h>
 
+#pragma endregion Libraries
 
 #pragma region process defined variables
 // When developing for your own Arduino-based platform,
@@ -95,7 +98,7 @@ static X509List cert2((const char*)ca_pem);
 
 static void connectToWiFi()
 {
-  Serial.begin(115200);
+  
   Serial.println();
   Serial.print("Connecting to WIFI SSID ");
   Serial.println(ssid);
@@ -357,7 +360,6 @@ static int getIrrigationInfoFromServer(int soilMoisturePercent)
     WiFiClientSecure client;
     HTTPClient http;
 
-    http.setTimeout(150000); //Set timeout to 2:20 minute in case the server has to start to give it some time to process the request
 
     //Certificate for secure http request
     initializeTime();
@@ -367,7 +369,6 @@ static int getIrrigationInfoFromServer(int soilMoisturePercent)
 
     // Your Domain name with URL path or IP address with path
     http.begin(client, serverPath);
-    
     
     // Send HTTP GET request
     //TODO: if server takes a bit from sleep then the request times out, make it wait longer
@@ -463,6 +464,7 @@ float humidity;
 //Main program (this activates each time the esp wakes from deepsleep)
 void setup()
 {
+  
   digitalWrite(RELAYPIN, LOW); 
 
   pinMode(POWERSOILSENSORPIN, OUTPUT);
@@ -476,6 +478,8 @@ void setup()
   dht.begin();
 
   while (!Serial) { }
+  
+  Serial.begin(115200);
 
   Serial.println();Serial.println("---------------------------------");
   Serial.println("ESP wakes up");
