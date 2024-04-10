@@ -18,7 +18,7 @@ const WateringTimeSlider = ({disabled, everyHours=6, updateEveryHours}) => {
       id="slider"
       value={everyHours || 5}
       defaultValue={everyHours}
-      min={0}
+      min={1}
       max={12}
       colorScheme="purple"
       isDisabled={disabled}
@@ -26,15 +26,17 @@ const WateringTimeSlider = ({disabled, everyHours=6, updateEveryHours}) => {
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      <SliderMark value={2} mt="1" ml="-2.5" fontSize="sm">
-        2h
+      
+      <SliderMark value={4} mt="1" ml="-2.5" fontSize="sm">
+        3h
       </SliderMark>
-      <SliderMark value={6} mt="1" ml="-2.5" fontSize="sm">
+      <SliderMark value={7} mt="1" ml="-2.5" fontSize="sm">
         6h
       </SliderMark>
       <SliderMark value={10} mt="1" ml="-2.5" fontSize="sm">
-        10h
+        9h
       </SliderMark>
+   
       <SliderTrack bgColor={"rgba(219,219,219,59)"}>
         <SliderFilledTrack/>
       </SliderTrack>

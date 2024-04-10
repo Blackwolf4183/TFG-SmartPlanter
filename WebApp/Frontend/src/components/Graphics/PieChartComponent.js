@@ -42,7 +42,7 @@ const PieChartComponent = ({ data }) => {
           ))}
         </Pie>
         <Tooltip />
-        <Legend />
+        {groupedData.length <= 2 && <Legend/>}
       </PieChart>
     </ResponsiveContainer>
   );
