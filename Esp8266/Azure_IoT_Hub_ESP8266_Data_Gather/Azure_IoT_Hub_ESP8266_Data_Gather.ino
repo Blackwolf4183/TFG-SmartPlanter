@@ -350,6 +350,7 @@ static int getIrrigationInfoFromServer(int soilMoisturePercent)
     Serial.println("address: ");
     Serial.println(serverPath);
     // Your Domain name with URL path or IP address with path
+    //TODO: change by serverPath and check is correct
     http.begin(client, "https://tfg-smartplanter.onrender.com/esp/irrigate?client_id=SmartPlanter1&soil_moisture=30");
     
     // If you need Node-RED/server authentication, insert user and password below
