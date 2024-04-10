@@ -3,7 +3,7 @@ import datetime
 from fastapi import Depends, HTTPException, status
 
 from ..database import create_supabase_client
-from ..Controllers.deviceController import device_exists, device_belongs_to_user
+from ..Controllers.deviceController import device_exists
 from ..Controllers.plantController import IRRIGATION_TYPE_PROGRAMMED, IRRIGATION_TYPE_THRESHOLD
 from ..Models.IrrigationModel import ESPIrrigationInfo
 
@@ -35,7 +35,7 @@ def should_irrigate_plant(client_Id: str, soil_moisture: int) -> ESPIrrigationIn
     #Search irrigation type based on device_id
     irrigation = supabase.from_("irrigation").select("*").eq("deviceid", device_id).execute()
     
-    print(irrigation.data)
+    #print(irrigation.data)
 
     #If no irrigation data then do not water the plant
     if not (irrigation and irrigation.data):
@@ -68,7 +68,7 @@ def should_irrigate_plant(client_Id: str, soil_moisture: int) -> ESPIrrigationIn
         if not irrigationtimes.data or len(irrigationtimes.data) == 0:
             return ESPIrrigationInfo(shouldIrrigate=False, irrigationAmount=0)
         
-        print(irrigationtimes.data) #DEBUG
+        #print(irrigationtimes.data) #DEBUG
 
         #Check if time difference between current time and irrigation time is less or more than an hour
         # Convert string representation of irrigation time into a datetime object
@@ -82,8 +82,8 @@ def should_irrigate_plant(client_Id: str, soil_moisture: int) -> ESPIrrigationIn
                                             month=irrigation_time_obj.month, 
                                             day=irrigation_time_obj.day)
 
-        print("Current time is: ")
-        print(current_time)
+        #print("Current time is: ")
+        #print(current_time)
 
         # Calculate the time difference
         time_difference = irrigation_time_obj - current_time

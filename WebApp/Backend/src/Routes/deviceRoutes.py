@@ -1,13 +1,17 @@
 from fastapi import APIRouter
-from fastapi import  HTTPException, Form, status
+from fastapi import  HTTPException, Form, status, Header
 from fastapi import Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Annotated
+from dotenv import load_dotenv
+import os
 
 from ..Controllers.deviceController import create_device
 from ..Controllers.securityController import User,get_current_user
 from ..Controllers import deviceController
+
+load_dotenv()
 
 router = APIRouter()
 
@@ -15,13 +19,22 @@ class DeviceLinkRequest(BaseModel):
     client_id: str
     device_password: str
 
+def get_api_key(api_key: str = Header(...)):
+    expected_api_key = os.environ.get("API_KEY")
+    if api_key != expected_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API Key"
+        )
+
 #TODO: add another layer of protection to add devices
 #Route to register device into db
 #This route is only meant to be used for development, as devices should be registered once they are manufactured into the system
 @router.post("/register")
 async def register_device(
     clientId: str = Form(...),
-    password: str = Form(...)
+    password: str = Form(...),
+    api_key: str = Depends(get_api_key)  # Add the API Key dependency here
 ):
     created_device = await create_device(clientId, password)
     return created_device
