@@ -16,6 +16,7 @@ import { useDisclosure } from '@chakra-ui/react';
 import GraphicsBentoWrapper from '../components/GraphicsBentoWrapper';
 import ChangePlantModal from '../components/ChangePlantModal';
 import ChangeDeviceModal from '../components/ChangeDeviceModal';
+import FeedBackBento from '../components/BentoGridItems/FeedBackBento';
 
 const Main = () => {
   //Log to device modal
@@ -83,8 +84,11 @@ const Main = () => {
             <GraphicsBentoWrapper/>
 
             {/* SIXTH ROW */}
-            <AdviceBento colSpan={4} rowSpan={2} />
+            <FeedBackBento colSpan={4} rowSpan={2}/>
+
+            {/* SEVENTH ROW */}
             <ExploreYourPlantBento colSpan={3} rowSpan={2} />
+            <AdviceBento colSpan={4} rowSpan={2} />
           </Grid>
         </VStack>
       </Center>

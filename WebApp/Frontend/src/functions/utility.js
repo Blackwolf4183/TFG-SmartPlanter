@@ -26,7 +26,7 @@ const daysOfWeek = [
     'septiembre',
     'octubre',
     'noviembre',
-    'ciciembre',
+    'diciembre',
   ];
 
 export function getHeaderDate() {
