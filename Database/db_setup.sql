@@ -82,6 +82,14 @@ CREATE TABLE IrrigationTimes (
   Completed BOOLEAN NOT NULL DEFAULT FALSE
 );
 
+CREATE TABLE plantstate (
+  id SERIAL PRIMARY KEY,
+  state INTEGER,
+  recorded_date DATE,
+  device_id INTEGER REFERENCES Device(id)
+);
+
+
 --FUNCTIONS
 
 create or replace function get_latest_reading(givenDeviceId int4)

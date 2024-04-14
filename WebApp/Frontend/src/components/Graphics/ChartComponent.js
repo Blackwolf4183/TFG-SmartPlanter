@@ -26,9 +26,9 @@ const ChartComponent = ({ data, checkedItems }) => {
           }}
         />
         <Legend />
-        {checkedItems[0] && <Line type="monotone" dataKey="soilmoisture" stroke="#8884d8" name="Humedad tierra" unit="%"/>}
-        {checkedItems[1] && <Line type="monotone" dataKey="airhumidity" stroke="#ff7300" name="Humedad Aire" unit="%"/>}
-        {checkedItems[2] && <Line type="monotone" dataKey="lightlevel" stroke="#ffc658" name="Intensidad lumínica" unit="%"/>}
+        {checkedItems[0] && <Line type="monotone" dataKey="lightlevel" stroke="#ffc658" name="Intensidad lumínica" unit="%"/>}
+        {checkedItems[1] && <Line type="monotone" dataKey="soilmoisture" stroke="#ff7300" name="Humedad tierra" unit="%"/>}
+        {checkedItems[2] && <Line type="monotone" dataKey="airhumidity" stroke="#8884d8" name="Humedad Aire" unit="%"/>}
       </LineChart>
     </ResponsiveContainer>
   );

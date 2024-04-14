@@ -265,6 +265,13 @@ async def create_plant_info_registry(device_id:str, plant_id:str , user):
     #Delete previous registry (if existed)
     supabase.from_("deviceplant").delete().eq('deviceid',device_id).execute()
 
+    #Get client id from device id
+    device = supabase.from_("device").select("*").eq("id", device_id).execute()
+    client_id = device.data[0]["clientid"]
+
+    #Delete previous data from arduinodata table
+    supabase.from_("arduinodata").delete().eq('clientid',client_id).execute()
+
     #Create new registry
     supabase.from_("deviceplant").insert({"deviceid": device_id, "plantid": plant_id}).execute()
 

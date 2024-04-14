@@ -2,7 +2,6 @@ import React from 'react';
 import { Grid, GridItem, Text, VStack, Tooltip, Icon, Circle, HStack, Spacer } from '@chakra-ui/react';
 import { RiPlantLine } from "react-icons/ri";
 import { BsExclamation } from "react-icons/bs";
-import { ImDroplet } from 'react-icons/im';
 import { BiDroplet } from "react-icons/bi";
 import { BiTestTube } from "react-icons/bi";
 import { BiBandAid } from "react-icons/bi";
@@ -29,7 +28,7 @@ const FeedBackBento = ({colSpan,rowSpan}) => {
       <HStack>
         <Text fontSize="xl" mb="2">Seguimiento de tu planta </Text>
         <Spacer/>
-        <Text mb="2" color="blackAlpha.600">Ya has votado hoy</Text>
+        <Text mb="2" color="blackAlpha.600">Aun no has votado hoy</Text>
       </HStack>
 
     <Grid templateColumns="repeat(3, 1fr)" gap={2}>

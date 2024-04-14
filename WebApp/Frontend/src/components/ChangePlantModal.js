@@ -13,6 +13,7 @@ import {
   InputLeftElement,
   Spinner,
   ModalCloseButton,
+  useDisclosure
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -20,13 +21,13 @@ import Cookies from 'js-cookie';
 import useAxios from '../functions/axiosHook';
 import { GoSearch } from 'react-icons/go';
 import PlantCard from './PlantCard';
+import ChangePlantConfirmationModalAlert from './ChangePlantConfirmationAlert';
 
 const ChangePlantModal = ({ isOpen, onClose, setHasSelectedPlant }) => {
   const requestResultToast = useToast();
 
   //Selected plantId
   const [plantId, setPlantId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   //Request for plants data
   const [url, setUrl] = useState('');
@@ -35,6 +36,9 @@ const ChangePlantModal = ({ isOpen, onClose, setHasSelectedPlant }) => {
   const [isPlantDataLoading, setIsPlantDataLoading] = useState(true);
 
   const [filteredPlantData, setFilteredPlantData] = useState([]);
+
+  //usedisclosure for alert dialog on wanting to delete data
+  const { isOpen: isOpenAlertDialog, onOpen: onOpenAlertDialog, onClose: onCloseAlertDialog } = useDisclosure()
 
   //Get deviceId and set url
   useEffect(() => {
@@ -69,55 +73,10 @@ const ChangePlantModal = ({ isOpen, onClose, setHasSelectedPlant }) => {
 
       return;
     }
+    
+    //Open modal to alert the user data will be erased if he continues
+    onOpenAlertDialog();
 
-    try {
-      setIsLoading(true);
-
-      // Get the JWT from the '_auth' cookie
-      const jwt = Cookies.get('_auth');
-
-      // Set up the Axios headers with the JWT as a bearer token
-      const headers = {
-        Authorization: `Bearer ${jwt}`,
-      };
-
-      const response = await axios.post(
-        process.env.REACT_APP_BACKEND_URL + `plants?device_id=${deviceId}&plant_id=${plantId}`, 
-        {},
-        { headers }
-      );
-
-      if (response.status === 200 || response.status === 201) {
-
-        setHasSelectedPlant(true);
-
-        //Show successful change
-        requestResultToast({
-          title: "Se ha cambiado la planta exitósamente",
-          status: 'success',
-          isClosable: true,
-        });
-
-        setTimeout(() => {
-          
-          requestResultToast({
-            title: "Se ha aplicado un riego adecuado a tu planta, puedes modificarlo en la caja de \"Riego\"",
-            status: 'info',
-            isClosable: true,
-          });
-
-        }, 150);
-
-      }
-    } catch (err) {
-      requestResultToast({
-        title: "Ha ocurrido un error intentando seleccionar tu planta",
-        status: 'error',
-        isClosable: true,
-      });
-    }
-
-    setIsLoading(false);
   };
 
   //Set selected plant with usestate
@@ -138,6 +97,8 @@ const ChangePlantModal = ({ isOpen, onClose, setHasSelectedPlant }) => {
   }
 
   return (
+    <>
+    <ChangePlantConfirmationModalAlert isOpen={isOpenAlertDialog} onClose={onCloseAlertDialog} deviceId={deviceId} plantId={plantId} setHasSelectedPlant={setHasSelectedPlant}/>
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent p="5" bgColor={'white'} color="fontColor">
@@ -176,7 +137,6 @@ const ChangePlantModal = ({ isOpen, onClose, setHasSelectedPlant }) => {
             </Box>
             ;
             <Button
-              isLoading={isLoading}
               w="100px"
               colorScheme="green"
               mt="5"
@@ -188,6 +148,7 @@ const ChangePlantModal = ({ isOpen, onClose, setHasSelectedPlant }) => {
         </ModalBody>
       </ModalContent>
     </Modal>
+    </>
   );
 };
 
