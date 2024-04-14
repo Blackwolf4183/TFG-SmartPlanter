@@ -85,8 +85,8 @@ CREATE TABLE IrrigationTimes (
 CREATE TABLE plantstate (
   id SERIAL PRIMARY KEY,
   state INTEGER,
-  recorded_date DATE,
-  device_id INTEGER REFERENCES Device(id)
+  recordeddate DATE,
+  deviceid INTEGER REFERENCES Device(id)
 );
 
 

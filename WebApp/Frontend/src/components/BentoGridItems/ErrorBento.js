@@ -126,15 +126,15 @@ const ErrorBento = ({ colSpan, rowSpan }) => {
                     w="405px"
                     boxShadow={'rgba(0, 0, 0, 0.16) 0px 1px 4px;'}
                     borderRadius={10}
+                    pl="2"
                   >
                     <Box
                       h="70%"
                       w="5px"
-                      ml="2"
                       bgColor={'error'}
                       borderRadius={10}
                     />
-                    <VStack align={'left'} spacing="1">
+                    <VStack align={'left'} spacing="1" maxW={"380px"}>
                       <Text fontSize={'14px'} fontWeight={'medium'}>
                         {errorItem.source +
                           ' at ' +

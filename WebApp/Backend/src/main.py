@@ -6,10 +6,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from typing import Annotated
-
 #routes
-from .Routes import securityRoutes, errorRoutes, deviceRoutes, plantRoutes, espRoutes
+from .Routes import securityRoutes, errorRoutes, deviceRoutes, plantRoutes, espRoutes, machineLearningRoutes
 
 
 load_dotenv()
@@ -28,8 +26,9 @@ app.add_middleware(
 )
 
 
-app.include_router(securityRoutes.router, prefix="/auth", tags=["auth"])
-app.include_router(errorRoutes.router, prefix="/errors", tags=["errors"])
-app.include_router(deviceRoutes.router, prefix="/devices", tags=["devices"])
-app.include_router(plantRoutes.router, prefix="/plants", tags=["plants"])
-app.include_router(espRoutes.router, prefix="/esp", tags=["esp"])
+app.include_router(securityRoutes.router, prefix="/auth", tags=["Auth"])
+app.include_router(errorRoutes.router, prefix="/errors", tags=["Errors"])
+app.include_router(deviceRoutes.router, prefix="/devices", tags=["Devices"])
+app.include_router(plantRoutes.router, prefix="/plants", tags=["Plants"])
+app.include_router(espRoutes.router, prefix="/esp", tags=["ESP32"])
+app.include_router(machineLearningRoutes.router, prefix="/ml", tags=["Machine Learning"])
