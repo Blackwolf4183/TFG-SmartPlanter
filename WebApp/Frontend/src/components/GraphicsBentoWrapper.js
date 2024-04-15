@@ -33,12 +33,14 @@ const GraphicsBentoWrapper = () => {
     if (!loading && data?.data) {
 
       // Set date to JavaScript format in each data object
-      const formattedData = data.data.map(item => {
+      const formattedData = data.data
+      .map(item => {
         return {
           ...item,
           timestamp: new Date(item.timestamp),
         };
-      });
+      })
+      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); // Sort by date;
 
       setHistoricalData(formattedData);
       setGraphicsLoading(false)

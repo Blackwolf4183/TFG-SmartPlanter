@@ -23,7 +23,8 @@ const GeneralGraphicBento = ({ colSpan, rowSpan, historicalData, graphicsLoading
       if(historicalData){
 
         //Filter out temperature as we don't want it for this graph
-        const filteredData = historicalData.map(item => {
+        const filteredData = historicalData
+        .map(item => {
           const { temperature, ...rest } = item; // Use object destructuring to remove 'temperature'
           return rest; // Return the object without 'temperature'
         })
