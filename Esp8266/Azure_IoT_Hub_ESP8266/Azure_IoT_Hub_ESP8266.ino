@@ -55,7 +55,7 @@
 #define POWERPHOTOSENSORPIN 5 //D1
 #define POWERPOTENTIOMETERPIN 12 //D6
 #define BUTTONPIN 14 //D5
-#define RELAYPIN 0 //D3
+#define RELAYPIN 13 //D7
 #define ANALOGPIN A0
 
 #pragma region IoT_configs to variables
