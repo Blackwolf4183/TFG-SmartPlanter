@@ -150,3 +150,26 @@ $$;
 SELECT cron.schedule('0 0 * * *', 'CALL update_irrigation_times()');
 -- Example call
 --CALL update_irrigation_times();
+
+-- Query to get data for model training
+SELECT 
+  ad.id, 
+  ad.soilmoisture,
+  ad.temperature,
+  ad.airhumidity,
+  ad.lightlevel,
+  ad.irrigationamount,
+  ad.timestamp, 
+  dv.id as deviceID, 
+  ps.state 
+FROM 
+  ArduinoData AS ad 
+JOIN 
+  Device AS dv ON ad.clientid = dv.clientid 
+JOIN 
+  PlantState AS ps ON dv.id = ps.deviceid 
+    AND DATE(ad.timestamp) = ps.recordeddate 
+WHERE 
+  ad.clientId = 'SmartPlanter1' 
+ORDER BY 
+  ad.timestamp DESC;
