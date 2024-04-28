@@ -5,6 +5,9 @@ from fastapi import  HTTPException, status
 from ..database import create_supabase_client
 from ..Controllers.deviceController import device_exists, device_belongs_to_user
 from ..Models.VoteInfoModel import VoteInfo
+from ..Models.ModelInfoModel import ModelInfo
+
+from datetime import date
 
 PLANT_STATES = [
     "Saludable",
@@ -14,6 +17,7 @@ PLANT_STATES = [
     "Deficiencia nutrientes",
     "Enferma"
 ]
+
 
 #Initialize supabase client
 supabase = create_supabase_client()
@@ -105,3 +109,71 @@ async def get_plant_vote_info(device_id: str, user) -> VoteInfo:
         vote_info = VoteInfo(hasVotedToday=False, vote=-1)
 
     return vote_info
+
+
+async def get_current_model_info(device_id: str, user) -> ModelInfo:
+    """
+    Returns an object with information about model trained by user
+
+    Args:
+        device_id (str): Device ID
+        user (User): User object
+
+    Raises:
+        HTTPException: status_code=404 detail="Dispositivo no encontrado"
+        HTTPException: status_code=401 detail="El usuario no tiene acceso al dispositivo"
+        HTTPException: status_code=400 detail="Estado de la planta no válido"
+    """
+
+    # Check if the device exists
+    if not device_exists("id", device_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispositivo no encontrado")
+    
+    # Check if device belongs to user
+    if not device_belongs_to_user(device_id, user.id):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="El usuario no tiene acceso al dispositivo")
+
+    #Retrieve number of records of arduino data
+    count_query = supabase.rpc("get_readings_count",{'givendeviceid':device_id}).execute()
+    count = count_query.data
+
+    #Retrieve state from table modelstate table
+    model_state = supabase.from_("modelstate").select("*").eq("deviceid", device_id).execute()
+
+    #Get the amount of differnt votes user has used
+    used_states = supabase.rpc("get_used_states",{'givendeviceid':device_id}).execute()
+    used_states_count = used_states.data
+
+    #A model can be trained if there are more than 300 records and 2 different states voted
+    can_train_model = used_states_count >= 2 and count >= 300
+
+    #Record exists holding information about previous model
+    if len(model_state.data) > 0:
+        return ModelInfo(last_trained = model_state.data[0]["lastupdated"], training = False, sensor_measurements = count, can_train=can_train_model)
+
+    #Default response, no model previously trained
+    return ModelInfo(last_trained = None, training = False, sensor_measurements= count, can_train=can_train_model)
+
+
+async def train_model_with_current_data(device_id: str, user):
+    """
+    Trains a model using the data collected by the user
+    Args:
+        device_id (str): Device ID
+        user (User): User object
+
+    Raises:
+        HTTPException: status_code=404 detail="Dispositivo no encontrado"
+        HTTPException: status_code=401 detail="El usuario no tiene acceso al dispositivo"
+        HTTPException: status_code=400 detail="Estado de la planta no válido"
+    """
+    # Check if the device exists
+    if not device_exists("id", device_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispositivo no encontrado")
+    
+    # Check if device belongs to user
+    if not device_belongs_to_user(device_id, user.id):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="El usuario no tiene acceso al dispositivo")
+    
+    #TODO: 
+    

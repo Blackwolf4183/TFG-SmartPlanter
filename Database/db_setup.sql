@@ -89,6 +89,13 @@ CREATE TABLE plantstate (
   deviceid INTEGER REFERENCES Device(id)
 );
 
+CREATE TABLE ModelState (
+  id SERIAL PRIMARY KEY,
+  training boolean, 
+  lastupdated DATE, 
+  modelpath VARCHAR(100),
+  DeviceID INT REFERENCES Device(id) UNIQUE -- References the id from Device table
+);
 
 --FUNCTIONS
 
@@ -115,8 +122,8 @@ $$;
 --Example
 --SELECT * FROM get_latest_reading(1);
 
-create or replace function get_historical_readings(givenDeviceId int4)
-returns table(
+CREATE OR REPLACE FUNCTION get_historical_readings(givenDeviceId int4)
+RETURNS TABLE(
   id int4,
   soilmoisture float,
   temperature float,
@@ -126,16 +133,90 @@ returns table(
   "timestamp" timestamp,
   deviceId int4
 )
-language sql
-as $$
-  SELECT arduinodata.id, arduinodata.soilmoisture, arduinodata.temperature, arduinodata.airhumidity, arduinodata.lightlevel, arduinodata.irrigationamount ,timestamp, device.id as deviceId
+LANGUAGE sql
+AS $$
+  SELECT arduinodata.id, 
+         arduinodata.soilmoisture, 
+         arduinodata.temperature, 
+         arduinodata.airhumidity, 
+         arduinodata.lightlevel, 
+         arduinodata.irrigationamount,
+         arduinodata."timestamp", 
+         device.id as deviceId
+  FROM arduinodata
+  JOIN device ON arduinodata.clientid = device.clientid
+  WHERE device.id = givenDeviceId
+    AND arduinodata."timestamp" >= CURRENT_TIMESTAMP - INTERVAL '10 days';
+$$;
+
+--Example
+--SELECT * FROM get_historical_readings(1);   
+
+CREATE OR REPLACE FUNCTION get_readings_count(givenDeviceId int4)
+RETURNS int
+LANGUAGE sql
+AS $$
+  SELECT COUNT(*)
   FROM arduinodata
   JOIN device ON arduinodata.clientid = device.clientid
   WHERE device.id = givenDeviceId;
 $$;
 
---Example
---SELECT * FROM get_historical_readings(1);   
+create or replace function get_used_states(givenDeviceId int4)
+returns int
+language sql
+as $$
+  SELECT COUNT(*)
+  FROM (
+      SELECT DISTINCT state
+      FROM plantstate
+      WHERE deviceid = 1
+  ) AS distinct_states;
+$$;
+
+
+create or replace function  get_data_for_model(givenDeviceId int4)
+returns table(
+  id int4,
+  soilmoisture float,
+  temperature float,
+  airhumidity float,
+  lightlevel float,
+  irrigationamount float,
+  "timestamp" timestamp, 
+  deviceid int4, 
+  state int4 
+)
+language sql
+as $$
+  SELECT 
+  ad.id, 
+  ad.soilmoisture,
+  ad.temperature,
+  ad.airhumidity,
+  ad.lightlevel,
+  ad.irrigationamount,
+  ad.timestamp, 
+  dv.id as deviceID, 
+  ps.state 
+FROM 
+  ArduinoData AS ad 
+JOIN 
+  Device AS dv ON ad.clientid = dv.clientid 
+JOIN 
+  PlantState AS ps ON dv.id = ps.deviceid 
+    AND DATE(ad.timestamp) = ps.recordeddate 
+WHERE 
+  dv.id = givenDeviceId
+ORDER BY 
+  ad.timestamp DESC;
+$$;
+
+--Example use
+--SELECT * FROM get_data_for_model(1);
+
+
+
 
 -- Procedure to set to false all completed fields in irrigationTimes table
 CREATE OR REPLACE PROCEDURE update_irrigation_times()

@@ -73,7 +73,7 @@ const TemperatureGraphicBento = ({
         >
           <option value="TODAY">Hoy</option>
           <option value="WEEK">Última semana</option>
-          <option value="ALL">Todo</option>
+          <option value="ALL">Últimos 10 días</option>
         </Select>
       </HStack>
 

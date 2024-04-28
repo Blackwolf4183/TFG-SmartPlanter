@@ -17,6 +17,7 @@ import GraphicsBentoWrapper from '../components/GraphicsBentoWrapper';
 import ChangePlantModal from '../components/ChangePlantModal';
 import ChangeDeviceModal from '../components/ChangeDeviceModal';
 import FeedBackBento from '../components/BentoGridItems/FeedBackBento';
+import TrainModelBento from '../components/BentoGridItems/TrainModelBento';
 
 const Main = () => {
   //Log to device modal
@@ -85,6 +86,7 @@ const Main = () => {
 
             {/* SIXTH ROW */}
             <FeedBackBento colSpan={4} rowSpan={2}/>
+            <TrainModelBento colSpan={3} rowSpan={2}/>
 
             {/* SEVENTH ROW */}
             <ExploreYourPlantBento colSpan={3} rowSpan={2} />
