@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, BackgroundTasks
 from fastapi import  HTTPException, Form
 from fastapi import Depends, status
 from fastapi.responses import JSONResponse
@@ -45,10 +45,11 @@ async def get_model_info(device_id: str,current_user: Annotated[User, Depends(ge
         return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
-@router.get("/train_model", response_model=ModelInfo)
-async def train_model(device_id: str,current_user: Annotated[User, Depends(get_current_user)]):
+@router.get("/train_model")
+async def train_model(device_id: str, background_tasks: BackgroundTasks, current_user: Annotated[User, Depends(get_current_user)]):
     try:
-        await train_model_with_current_data(device_id, current_user)
+        background_tasks.add_task(train_model_with_current_data,device_id, current_user)
+        return JSONResponse(content={"message": "El modelo ha iniciado a entrenarse correctamente"}, status_code=status.HTTP_202_ACCEPTED)
     except HTTPException as http_exception:
         return JSONResponse(content={"message": f"HTTP Error {http_exception.status_code}: {http_exception.detail}"}, status_code=http_exception.status_code)
     except Exception as e:

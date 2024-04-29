@@ -155,7 +155,7 @@ async def get_current_model_info(device_id: str, user) -> ModelInfo:
     return ModelInfo(last_trained = None, training = False, sensor_measurements= count, can_train=can_train_model)
 
 
-async def train_model_with_current_data(device_id: str, user):
+def train_model_with_current_data(device_id: str, user):
     """
     Trains a model using the data collected by the user
     Args:
@@ -176,4 +176,5 @@ async def train_model_with_current_data(device_id: str, user):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="El usuario no tiene acceso al dispositivo")
     
     #TODO: 
+    print("funsiona")
     
