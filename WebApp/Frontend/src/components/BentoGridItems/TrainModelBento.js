@@ -85,10 +85,11 @@ const TrainModelBento = ({ colSpan, rowSpan }) => {
 
         <Tooltip
           label={
-            modelInfo?.training ?
-            'Tu modelo está en progreso de entrenamiento, espera un momento hasta que se complete'
-            :
-            'No cumples con los requisitos para entrenar un modelo, necesitas al menos 300 lecturas y haber votado al menos con 2 estados diferentes'
+            modelInfo?.training
+              ? 'Tu modelo está en progreso de entrenamiento, espera un momento hasta que se complete'
+              : !modelInfo?.can_train
+              ? 'No cumples con los requisitos para entrenar un modelo, necesitas al menos 300 lecturas y haber votado al menos con 2 estados diferentes'
+              : ''
           }
           bg="white"
           borderRadius={'xl'}
@@ -98,7 +99,7 @@ const TrainModelBento = ({ colSpan, rowSpan }) => {
             colorScheme="purple"
             mt="2"
             isLoading={componentLoading}
-            isDisabled={modelInfo?.can_train || modelInfo?.training}
+            isDisabled={!modelInfo?.can_train || modelInfo?.training}
           >
             Entrenar modelo
           </Button>
@@ -110,22 +111,21 @@ const TrainModelBento = ({ colSpan, rowSpan }) => {
           </Text>
         )}
 
-      <Tooltip
+        <Tooltip
           label={
-            !modelInfo?.last_trained &&
-            'No has entrenado aun ningún modelo'
+            !modelInfo?.last_trained && 'No has entrenado aun ningún modelo'
           }
           bg="white"
           borderRadius={'xl'}
           color="black"
         >
-        <Button
-          colorScheme="green"
-          isLoading={componentLoading}
-          isDisabled={!modelInfo?.last_trained}
-        >
-          Obtener recomendaciones
-        </Button>
+          <Button
+            colorScheme="green"
+            isLoading={componentLoading}
+            isDisabled={!modelInfo?.last_trained}
+          >
+            Obtener recomendaciones
+          </Button>
         </Tooltip>
       </VStack>
     </GridItem>
