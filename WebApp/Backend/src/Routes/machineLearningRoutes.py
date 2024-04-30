@@ -45,7 +45,7 @@ async def get_model_info(device_id: str,current_user: Annotated[User, Depends(ge
         return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
-@router.get("/train_model")
+@router.get("/train-model")
 async def train_model(device_id: str, background_tasks: BackgroundTasks, current_user: Annotated[User, Depends(get_current_user)]):
     try:
         background_tasks.add_task(train_model_with_current_data,device_id, current_user)
