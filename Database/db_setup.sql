@@ -94,6 +94,7 @@ CREATE TABLE ModelState (
   training boolean, 
   lastupdated DATE, 
   modelpath VARCHAR(100),
+  accuracy FLOAT,
   DeviceID INT REFERENCES Device(id) UNIQUE -- References the id from Device table
 );
 

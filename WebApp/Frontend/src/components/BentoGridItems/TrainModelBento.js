@@ -11,28 +11,44 @@ import {
 } from '@chakra-ui/react';
 import Cookies from 'js-cookie';
 import useAxios from '../../functions/axiosHook';
+import { BiBrain } from "react-icons/bi";
+import { BiPencil } from "react-icons/bi";
 
 const TrainModelBento = ({ colSpan, rowSpan }) => {
-  const [url, setUrl] = useState('');
+  const [modelInfoUrl, setModelInfoUrl] = useState('');
+  const [trainModelUrl, setTrainModelUrl] = useState('')
   const [componentLoading, setComponentLoading] = useState(true);
+  const [isTrainModelButtonLoading, setIsTrainModelButtonLoading] = useState(false)
   const [deviceId, setDeviceId] = useState(null);
   const [modelInfo, setModelInfo] = useState(null);
 
-  const { data, loading, error } = useAxios(url);
+  const { data: modelInfoData , loading: modelInfoLoading, error: modelInfoError } = useAxios(modelInfoUrl);
+  const { data: trainModelData , loading: trainModelLoading, error: trainModelError } = useAxios(trainModelUrl);
 
   const requestResultToast = useToast();
 
   //Useffect for errors on request
   useEffect(() => {
-    if (error && deviceId) {
+    if (modelInfoError && deviceId) {
       requestResultToast({
         title: 'Algo ha fallado intentando obtener información del modelo.',
         status: 'error',
         isClosable: true,
       });
     }
-  }, [error, deviceId, requestResultToast]);
+  }, [modelInfoError, deviceId, requestResultToast]);
 
+  useEffect(() => {
+    if (trainModelError && deviceId) {
+      requestResultToast({
+        title: 'Algo ha fallado intentando al intentar entrenar el modelo.',
+        status: 'error',
+        isClosable: true,
+      });
+    }
+
+    setIsTrainModelButtonLoading(false);
+  }, [trainModelError, deviceId, requestResultToast]);
   //Useffect to get cookies and make enpoint calls
   useEffect(() => {
     setTimeout(() => {
@@ -44,7 +60,7 @@ const TrainModelBento = ({ colSpan, rowSpan }) => {
       if (deviceId === undefined || deviceId === null || deviceId === 'null')
         return;
 
-      setUrl(
+      setModelInfoUrl(
         process.env.REACT_APP_BACKEND_URL +
           'ml/model-info?device_id=' +
           deviceId
@@ -53,11 +69,34 @@ const TrainModelBento = ({ colSpan, rowSpan }) => {
   }, []);
 
   useEffect(() => {
-    if (!loading && data !== null && data.can_train != null) {
-      setModelInfo(data);
+    if (!modelInfoLoading && modelInfoData !== null && modelInfoData.can_train != null) {
+      setModelInfo(modelInfoData);
       setComponentLoading(false);
     }
-  }, [data, loading]);
+  }, [modelInfoData, modelInfoLoading]);
+
+  const trainModel = () => {
+
+    setIsTrainModelButtonLoading(true);
+
+    setTrainModelUrl(
+      process.env.REACT_APP_BACKEND_URL +
+        'ml/train-model?device_id=' +
+        deviceId
+    );
+  }
+
+  useEffect(() => {
+    if(!trainModelLoading && trainModelData.message){
+      setIsTrainModelButtonLoading(false)
+      requestResultToast({
+        title: trainModelData.message,
+        status: 'success',
+        isClosable: true,
+      });
+    }
+  }, [trainModelLoading,trainModelData])
+  
 
   return (
     <GridItem
@@ -70,10 +109,10 @@ const TrainModelBento = ({ colSpan, rowSpan }) => {
       <Text fontSize="xl" mb="2">
         Entrena un modelo
       </Text>
-      <VStack mt="5">
+      <VStack mt="5" align={"left"}>
         <Text fontStyle={'italic'}>
           Utiliza los datos recopilados por tu maceta y obtén recomendaciones en
-          base ha como a ido evolucionando tu planta.
+          base a la evolución de tu planta.
         </Text>
 
         <Skeleton isLoaded={!componentLoading} mt="2">
@@ -97,9 +136,11 @@ const TrainModelBento = ({ colSpan, rowSpan }) => {
         >
           <Button
             colorScheme="purple"
-            mt="2"
-            isLoading={componentLoading}
+            mt="5"
+            isLoading={componentLoading || isTrainModelButtonLoading}
             isDisabled={!modelInfo?.can_train || modelInfo?.training}
+            leftIcon={<BiBrain style={{width:"25px", height:"25px"}}/>}
+            onClick={trainModel}
           >
             Entrenar modelo
           </Button>
@@ -123,6 +164,8 @@ const TrainModelBento = ({ colSpan, rowSpan }) => {
             colorScheme="green"
             isLoading={componentLoading}
             isDisabled={!modelInfo?.last_trained}
+            mt="5"
+            leftIcon={<BiPencil style={{width:"25px", height:"25px"}}/>}
           >
             Obtener recomendaciones
           </Button>

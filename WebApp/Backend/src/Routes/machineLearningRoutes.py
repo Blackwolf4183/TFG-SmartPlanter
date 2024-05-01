@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 import os
 from typing import Annotated
 
-from ..Controllers.machineLearningController import register_plant_state, get_plant_vote_info, get_current_model_info, train_model_with_current_data
+from ..Controllers.machineLearningController import register_plant_state, get_plant_vote_info, get_current_model_info, train_model_with_current_data, make_prediction_with_saved_model
 from ..Controllers.securityController import User,get_current_user
 from ..Models.VoteInfoModel import VoteInfo
 from ..Models.ModelInfoModel import ModelInfo
@@ -44,12 +44,21 @@ async def get_model_info(device_id: str,current_user: Annotated[User, Depends(ge
     except Exception as e:
         return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-
 @router.get("/train-model")
 async def train_model(device_id: str, background_tasks: BackgroundTasks, current_user: Annotated[User, Depends(get_current_user)]):
     try:
         background_tasks.add_task(train_model_with_current_data,device_id, current_user)
         return JSONResponse(content={"message": "El modelo ha iniciado a entrenarse correctamente"}, status_code=status.HTTP_202_ACCEPTED)
+    except HTTPException as http_exception:
+        return JSONResponse(content={"message": f"HTTP Error {http_exception.status_code}: {http_exception.detail}"}, status_code=http_exception.status_code)
+    except Exception as e:
+        return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@router.get("/make-prediction")
+async def train_model(device_id: str, current_user: Annotated[User, Depends(get_current_user)]):
+    try:
+        prediction = await make_prediction_with_saved_model(device_id,current_user)
+        return {"prediction": prediction}
     except HTTPException as http_exception:
         return JSONResponse(content={"message": f"HTTP Error {http_exception.status_code}: {http_exception.detail}"}, status_code=http_exception.status_code)
     except Exception as e:
