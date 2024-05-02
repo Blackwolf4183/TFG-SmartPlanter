@@ -10,6 +10,7 @@ from ..Controllers.machineLearningController import register_plant_state, get_pl
 from ..Controllers.securityController import User,get_current_user
 from ..Models.VoteInfoModel import VoteInfo
 from ..Models.ModelInfoModel import ModelInfo
+from ..Models.PredictionModel import PredictionModel
 
 router = APIRouter()
 
@@ -54,11 +55,11 @@ async def train_model(device_id: str, background_tasks: BackgroundTasks, current
     except Exception as e:
         return JSONResponse(content={"message": f"Failed to get errors: {str(e)}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-@router.get("/make-prediction")
+@router.get("/make-prediction" , response_model=PredictionModel)
 async def train_model(device_id: str, current_user: Annotated[User, Depends(get_current_user)]):
     try:
         prediction = await make_prediction_with_saved_model(device_id,current_user)
-        return {"prediction": prediction}
+        return prediction
     except HTTPException as http_exception:
         return JSONResponse(content={"message": f"HTTP Error {http_exception.status_code}: {http_exception.detail}"}, status_code=http_exception.status_code)
     except Exception as e:

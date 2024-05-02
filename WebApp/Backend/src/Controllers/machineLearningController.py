@@ -5,6 +5,7 @@ from ..database import create_supabase_client
 from ..Controllers.deviceController import device_exists, device_belongs_to_user
 from ..Models.VoteInfoModel import VoteInfo
 from ..Models.ModelInfoModel import ModelInfo
+from ..Models.PredictionModel import PredictionModel
 
 #Machine Learning libraries
 import pandas
@@ -20,6 +21,7 @@ from keras.models import Sequential
 from keras.utils import to_categorical
 from keras.layers import Dense
 from keras.layers import LSTM, Dense, Input
+from keras.saving import load_model
 
 
 PLANT_STATES = [
@@ -361,7 +363,7 @@ def train_model_with_current_data(device_id: str, user):
         supabase.from_("errorlog").insert([{"errormessage": "Algo ha fallado durante el entrenamiento del modelo.", "errortime":datetime.now().isoformat(), "source":"API", "clientid": client_id}])
 
 
-async def make_prediction_with_saved_model(device_id: str, user):
+async def make_prediction_with_saved_model(device_id: str, user) -> PredictionModel:
     # Check if the device exists
     if not device_exists("id", device_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispositivo no encontrado")
@@ -377,13 +379,48 @@ async def make_prediction_with_saved_model(device_id: str, user):
     if len(existing_model_state.data) == 0:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se ha encontrado ningún modelo guardado para el usuario")
     
-    #TODO: load model from path in existing_model_state
-    
-    #TODO: Take data from database and crop it to last 48 readings
+    #Load model from path in existing_model_state
+    model_filepath= f"./MLModels/model-{device_id}.keras" 
+    model = load_model(model_filepath)
+
+    print("llega hasta aqui")
+
+    #Take data from database 
     dataset_query = supabase.rpc("get_data_for_model",{'givendeviceid':device_id}).execute()
     #Drop uneccessary columns, scale the dataset and prepare its variables for training
     reframed = prepare_dataset(dataset_query.data)
 
-    #TODO: make prediction with model
+    #make prediction with model
+    values = reframed.values
 
-    #TODO: depending on model prediction create a custom response 
+    #Take the first row of the dataset (as it has the 48 previous readings) to predict the next state of the plant, based on training
+    prediction_instance = values[0, :-1] 
+    # Reshape it to fit the model input shape [1, 1, number of features]
+    prediction_row = prediction_instance.reshape(1, 1, len(prediction_instance))
+
+    # Use the model to predict
+    yhat_probs = model.predict(prediction_row)
+    yhat_classes = np.argmax(yhat_probs, axis=1)
+
+    plant_prediction_state = PLANT_STATES[yhat_classes[0]]
+    print("Prediction for device: ", device_id, " is: ", plant_prediction_state)
+
+    #Depending on model prediction create a custom response 
+    if plant_prediction_state == "Saludable":
+        advice = "No se requieren acciones. Continúa con el régimen de cuidado actual."
+        return PredictionModel(prediction=advice, prediction_state=0, increase_irrigation=False, decrease_irrigation=False)
+    elif plant_prediction_state == "Estresada":
+        advice = "Revisa posibles factores de estrés como extremos de temperatura o daño físico."
+        return PredictionModel(prediction=advice, prediction_state=1, increase_irrigation=False, decrease_irrigation=False)
+    elif plant_prediction_state == "Deshidratada":
+        advice = "Aumenta la frecuencia y el volumen de riego para asegurar una adecuada hidratación."
+        return PredictionModel(prediction=advice, prediction_state=2, increase_irrigation=True, decrease_irrigation=False)
+    elif plant_prediction_state == "Exceso de riego":
+        advice = "Reduce la frecuencia de riego y verifica el drenaje para prevenir el encharcamiento."
+        return PredictionModel(prediction=advice, prediction_state=3, increase_irrigation=False, decrease_irrigation=True)
+    elif plant_prediction_state == "Deficiencia nutrientes":
+        advice = "Considera ajustar la aplicación de fertilizantes para corregir las deficiencias de nutrientes."
+        return PredictionModel(prediction=advice, prediction_state=4, increase_irrigation=False, decrease_irrigation=False)
+    elif plant_prediction_state == "Enferma":
+        advice = "Inspecciona la planta en busca de signos de enfermedades o plagas y trata de acuerdo a ello."
+        return PredictionModel(prediction=advice, prediction_state=5, increase_irrigation=False, decrease_irrigation=False)
